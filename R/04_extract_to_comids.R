@@ -35,8 +35,9 @@ f_extract_to_comids <- function(infile, comids, outdir){
     fs::dir_create(outdir)
     write_csv(f1, file = glue("{outdir}/{path_ext_remove(path_file(infile))}.csv"))
   }
-  else(print(glue("{infile} exists")))
+  else(print(glue("{path_ext_remove(path_file(infile))} exists!")))
 
-  #ziplist <- get_zip_list(glue("{outdir}"), extension = "*csv")
+  ziplist <- get_zip_list(glue("{outdir}"), extension = "*csv")
+  return(ziplist)
 
 }

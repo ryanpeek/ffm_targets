@@ -3,7 +3,7 @@
 
 # Load packages required to define the pipeline:
 library(targets)
-#library(tarchetypes) # Load other packages as needed. # nolint
+library(tarchetypes) # Load other packages as needed. # nolint
 
 # Set target options:
 options(tidyverse.quiet = TRUE)
@@ -46,11 +46,12 @@ list(
              purrr::map(scibase_filelist$path,
                         ~f_extract_to_comids(.x,
                                              comids = get_comids$comid,
-                                             outdir = "data_output/scibase_nhd"))),
-  tar_target(scibase_comid_csvs,
-              get_zip_list("data_output/scibase_nhd/", "*csv")),
+                                             outdir = "data_output/scibase_nhd")) %>%
+               pluck(., 1)),
+  #tar_target(scibase_comid_csvs,
+  #            get_zip_list("data_output/scibase_nhd/", "*csv")),
   tar_target(make_met_data,
-             f_make_met_data(scibase_comid_csvs, "data_output"))
+             f_make_met_data(scibase_comids, "data_output"))
 )
 
 # tar_glimpse()

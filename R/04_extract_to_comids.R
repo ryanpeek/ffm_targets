@@ -13,8 +13,8 @@
 
 f_extract_to_comids <- function(infile, comids, outdir){
 
-  if(!file.exists(glue("{infile}"))){
-
+  fs::dir_create(outdir)
+  if(!file.exists(infile)){
     print(glue("Reading {path_file(infile)}"))
     f1 <- vroom(infile, show_col_types = FALSE) %>% # fast readin
       dplyr::rename_with(., toupper) %>%
@@ -31,8 +31,7 @@ f_extract_to_comids <- function(infile, comids, outdir){
     f1 <- f1 %>% mutate(filename = fs::path_file(infile))
 
     # Write out to single csv -----------------------------------------------
-    print("Writing out files")
-    fs::dir_create(outdir)
+    print(glue("Writing out {infile}"))
     write_csv(f1, file = glue("{outdir}/{path_ext_remove(path_file(infile))}.csv"))
   }
   else(print(glue("{path_ext_remove(path_file(infile))} exists!")))

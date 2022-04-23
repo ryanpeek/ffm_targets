@@ -17,22 +17,34 @@
 
 # specify a DOI (e.g., "10.5066/F7765D7V")
 #doi <- "10.5066/F7765D7V"
-f_get_scibase_urls <- function(doi, ...){
-  # get the DOI info
-  doi_info <- sbtools::query_sb_doi(doi, limit = 5000)
-  # get id for items
-  id_item <- doi_info[[1]]$id # i.e,. item ID: 5669a79ee4b08895842a1d47
+f_get_scibase_urls <- function(doi, outdir){
 
-  # list ALL files (takes a min)
-  all_files <- sbtools::item_list_files(id_item, recursive = TRUE)
-  # add file sizes for future viewing
-  all_files <- all_files %>%
-    dplyr::mutate(size_mb = size * 1e-6, .after=size)
-  glue::glue("There are {nrow(all_files)} files in total.")
+  # make dir if it doesn't exist
+  fs::dir_create(outdir)
 
-  fs::dir_create("data_input")
-  clean_doi <- gsub("\\/", "_",x = doi, perl = TRUE)
+  # check if output already exists:
+  if(!length(list.files(path = outdir, pattern = 'sb_files_doi'))>0){
 
-  readr::write_rds(all_files, file = here::here(glue::glue("data_input/sb_files_doi_{clean_doi}.rds")))
+    # get the DOI info
+    doi_info <- sbtools::query_sb_doi(doi, limit = 5000)
+    # get id for items
+    id_item <- doi_info[[1]]$id # i.e,. item ID: 5669a79ee4b08895842a1d47
 
+    # list ALL files (takes a min)
+    all_files <- sbtools::item_list_files(id_item, recursive = TRUE)
+    # add file sizes for future viewing
+    all_files <- all_files %>%
+      dplyr::mutate(size_mb = size * 1e-6, .after=size)
+    glue::glue("There are {nrow(all_files)} files in total.")
+
+    clean_doi <- gsub("\\/", "_",x = doi, perl = TRUE)
+
+    readr::write_rds(all_files, file = here::here(glue::glue("{outdir}/sb_files_doi_{clean_doi}.rds")))
+  } else({
+    glue("File exists...loading")
+    sburls <- read_rds(fs::dir_ls(
+      path = outdir,
+      regexp = "sb_files_doi"))
+    return(sburls)
+  })
 }

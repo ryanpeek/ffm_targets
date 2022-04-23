@@ -261,4 +261,4 @@ t_avg_cat,T_AVG_CAT,cat_tav7100_ann,NA,none,NONE,NHDV2_TMEAN7100_ANN_CONUS.csv,"
 et_cat,ET_CAT,cat_et,NA,none,NONE,ET_CONUS.csv,"Catchment mean annual evapotranspiration, mm/yr."
 pet_cat,PET_CAT,cat_pet,NA,none,NONE,PET_CONUS.csv,"Catchment mean potential annual evapotranspiration, mm/yr (PRISM 1971-2000)."
 rh_cat,RH_CAT,cat_rh,NA,none,NONE,RH_CONUS.csv,"Catchment mean relative humidity (%), derived from PRISM (1971-2000)."
-depth_wattab,DEPTH_WATTAB,tot_wtdep,TOT_WTDEP,none,NONE,STATSGO_LAYER_TOT_CONUS.csv,Estimated basin mean depth to water table in meters
+depth_wattab,DEPTH_WATTAB,tot_wtdep,NA,none,NONE,STATSGO_LAYER_TOT_CONUS.csv,Estimated basin mean depth to water table in meters

@@ -3,14 +3,15 @@
 
 # Get LOIs and Flowlines --------------------------------------------------
 
-f_get_nhd_comids <- function(data){
+f_get_comids <- function(data){
 
   # read_rds(here("data_input/nhd_flowlines_vaa.rds")
   # flowlines
-  flowlines <- read_rds(here(glue("data_input/{data}"))) %>%
+  flowlines <- read_rds(glue("{data}")) %>%
     # remove all the junk just get what we need
     select(comid, fromnode, tonode, divergence, ftype,
-           areasqkm, lengthkm, gnis_id, hydroseq) %>%
+           areasqkm, lengthkm, totdasqkm, terminalID,
+           sort_order, arbolatesum, gnis_id, hydroseq) %>%
     st_transform(4269)
   return(flowlines)
 }
@@ -18,20 +19,20 @@ f_get_nhd_comids <- function(data){
 
 # Clean  ------------------------------------------------------------------
 
-f_clean_nhd_flowlines <- function(data){
-
-  # List sink/isolated segments (N=19)
-  sinks <- c(3917228, 3917212, 3917214, 3917218, 3917220,
-             3917960, 3917958, 3917276, 3917278, 3917274,
-             3917282, 3917284, 3917286, 3917280, 3917268,
-             3917256, 3917250, 3917272, 3917956)
-
-  # make just sinks
-  fsinks <- flowlines %>% filter(comid %in% sinks)
-  fmain <- flowlines %>% filter(!comid %in% sinks)
-  flowline_list <- list("fsinks" = fsinks, "fmain" = fmain)
-  return(flowline_list)
-}
+# f_clean_nhd_flowlines <- function(data){
+#
+#   # List sink/isolated segments (N=19)
+#   sinks <- c(3917228, 3917212, 3917214, 3917218, 3917220,
+#              3917960, 3917958, 3917276, 3917278, 3917274,
+#              3917282, 3917284, 3917286, 3917280, 3917268,
+#              3917256, 3917250, 3917272, 3917956)
+#
+#   # make just sinks
+#   fsinks <- flowlines %>% filter(comid %in% sinks)
+#   fmain <- flowlines %>% filter(!comid %in% sinks)
+#   flowline_list <- list("fsinks" = fsinks, "fmain" = fmain)
+#   return(flowline_list)
+# }
 
 
 # Clean Catchments --------------------------------------------------------

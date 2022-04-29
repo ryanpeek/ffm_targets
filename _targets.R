@@ -50,7 +50,7 @@ list(
 
   # step 3: load nhd flowlines and get comids
   tar_target(get_comids,
-             f_get_nhd_comids("nhd_flowlines_vaa.rds")),
+             f_get_comids("data_output/sf_flowlines_trimmed_w_areas.rds")),
 
   # step 4: filter NHD science base data to comids of interest
   tar_target(filter_scibase_comids,
@@ -66,6 +66,8 @@ list(
   # step 6: combine all the data!
   tar_target(make_cat_ffc_data,
              f_combine_met_cat_data(make_met_data, "data_output"))
+
+  # step 7: pull in catchments
 )
 
 

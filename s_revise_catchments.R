@@ -16,13 +16,13 @@ mapviewOptions(fgb = FALSE)
 # Vars --------------------------------------------------------------------
 
 # outdir
+indir <- "data_input"
 outdir <- "data_output"
-
 
 # Old Catchment Data --------------------------------------------------------------
 
 # comids
-catch <- read_rds("data_input/catchments_final_lshasta.rds")
+catch <- read_rds(glue("{indir}/catchments_final_lshasta.rds"))
 # drop splinters
 to_drop <- c(1386713,1387823, 1387701,1387917, 1387877,
              1387655, 1387682, 1387926, 1387559, 1387104,
@@ -45,9 +45,7 @@ catch_comids <- catch_comids %>%
 # make just a vector of comids
 comids <- catch_comids$FEATUREID
 
-
 # NHDPLus Geopackage ------------------------------------------------------
-
 
 # check if vaa exists
 if(!fs::file_exists(glue("{outdir}/nhdplus_vaa.gpkg"))){
@@ -74,14 +72,12 @@ nhd_vaa <- sf::st_read(glue("{outdir}/nhdplus_vaa.gpkg"), "NHDFlowline_Network",
 # Preview Map -------------------------------------------------------------
 
 # quick view w mapview
-mapview(catch_comids) + mapview(catch_vaa, alpha=0.4, col.regions="yellow") + mapview(nhd_vaa, color="cyan4")
-
+#mapview(catch_comids) + mapview(catch_vaa, alpha=0.4, col.regions="yellow") + mapview(nhd_vaa, color="cyan4")
 
 # Remove Canals (keep intermittent/perennial) -----------------------------
 
 # modified to remove canals
-mapview(catch_comids) + mapview(catch_vaa, alpha=0.4, col.regions="yellow") + mapview(nhd_vaa %>% filter(fcode %in% c(46003, 46006)), color="cyan4")
-
+#mapview(catch_comids) + mapview(catch_vaa, alpha=0.4, col.regions="yellow") + mapview(nhd_vaa %>% filter(fcode %in% c(46003, 46006)), color="cyan4")
 
 # drop canals?
 canal_comids <- c(3917940, 3917216,3917928,948010095, 3917954, 3917382,
@@ -104,8 +100,7 @@ catch_trim <- catch_vaa %>%
   filter(featureid %in% nhd_trim$comid)
 
 # preview
-mapview(catch_trim, alpha=0.4, col.regions="gray") + mapview(nhd_trim, color="cyan4")
-
+# mapview(catch_trim, alpha=0.4, col.regions="gray") + mapview(nhd_trim, color="cyan4")
 
 # Generate Clean COMID network --------------------------------------------
 
@@ -118,7 +113,7 @@ flownet_sort <- get_sorted(flownet, split = TRUE,)
 # if split = TRUE with dendritic true:
 flownet_sort_main <- filter(flownet_sort, terminalID == 3917946)  # filter to stream that gets to outlet
 flownet_sort_main['sort_order'] <- 1:nrow(flownet_sort_main)
-plot(flownet_sort_main['sort_order'])
+# plot(flownet_sort_main['sort_order'])
 
 # arbolate
 flownet_sort_main[["arbolatesum"]] <- calculate_arbolate_sum(
@@ -132,16 +127,18 @@ plot(sf::st_geometry(flownet_sort_main), lwd = flownet_sort_main$arbolatesum / 1
 # Filter Catch to Clean Network -------------------------------------------
 
 catch_main <- catch_vaa %>%
-  filter(featureid %in% flownet_sort_main$comid) %>%
+  filter(featureid %in% flownet_sort_main$comid)
+
+# calc total area:
+(lsh_area <- sum(st_area(catch_main) %>% set_units("km^2")))
+
+catch_main <- catch_main %>%
   mutate(
     areasqkm = units::set_units(st_area(geom),"m^2") %>% set_units("km^2") %>% drop_units(),
     area_weight = areasqkm/lsh_area %>% drop_units(), .after=areasqkm) %>%
   rename(comid=featureid)
 
 #mapview(catch_main, alpha=0.4, col.regions="gray") + mapview(flownet_sort_main, color="cyan4")
-
-# calc total area:
-(lsh_area <- sum(st_area(catch_main) %>% set_units("km^2")))
 
 # calculate total drainage area
 catchment_area <- prepare_nhdplus(flownet_sort_main, 0, 0,
@@ -163,14 +160,16 @@ flownet_main <- flownet_sort_main %>%
   select(-c(areasqkm, totdasqkm)) %>%
   left_join(., st_drop_geometry(catch_main),
                      by=c("comid")) %>%
-  rename(totdasqkm = totda, .after=areasqkm)
+  rename(totdasqkm = totda) %>%
+  select(-ends_with(".y"), -ends_with(".x"))
 
 
 # write out!!
 # need a csv with comid, area, and drain area
 catch_main %>% st_drop_geometry() %>%
-  write_csv(file = "data_output/sf_catch_trimmed_w_areas.csv")
+  write_csv(file = glue("{outdir}/sf_catch_trimmed_w_areas.csv"))
 
 # save out flowlines cleaned
 flownet_main %>%
-  write_rds(file="data_output/sf_flowlines_trimmed_w_areas.csv")
+  write_rds(file=glue("{outdir}/sf_flowlines_trimmed_w_areas.rds"))
+

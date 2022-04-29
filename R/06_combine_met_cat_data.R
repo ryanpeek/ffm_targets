@@ -13,7 +13,7 @@
 
 f_combine_met_cat_data <- function(metdata, outdir){
 
-  #metdata <- read_csv(glue("{here('data_output/met_seasonal_metrics.csv')}"))
+  # metdata <- read_csv(glue("{here('data_output/met_seasonal_metrics.csv')}"))
   filelist <- get_zip_list("data_output/scibase_nhd/", extension = "*.csv")
 
   # filelist should be list of trimmed csvs
@@ -42,7 +42,7 @@ f_combine_met_cat_data <- function(metdata, outdir){
     select(-c(starts_with("acc"), pct, starts_with("tot"))) %>%
     left_join(., ffc_df %>% select(comid, tot_wtdep), by="comid")
 
-  names(ffc_final) %>% as_tibble() %>% View(title = "finnames")
+  #names(ffc_final) %>% as_tibble() %>% View(title = "finnames")
 
   # get sample names and reorder
   xwalk <- read_csv(glue("{here('data_input/08_accumulated_final_xwalk.csv')}"))
@@ -55,14 +55,14 @@ f_combine_met_cat_data <- function(metdata, outdir){
            "cat_tav7100_ann", "cat_ppt7100_ann",
            "cat_minp6190", "cat_maxp6190")
 
-  names(ffc_final2) %>% as_tibble() %>% View(title = "finnames2")
+  #names(ffc_final2) %>% as_tibble() %>% View(title = "finnames2")
 
   # what's missing
-  xwalk[!xwalk$mod_input_final %in% names(ffc_final2),c(1:4,6)] %>% arrange(accum_op_class)
-  # n=18 but  just need krug, area, and tot_wtdep
+  # xwalk[!xwalk$mod_input_final %in% names(ffc_final2),c(1:4,6)] %>% arrange(accum_op_class)
+  # n=18 but  just need krug, area
 
   # export
   write_csv(ffc_final2, file = glue("{outdir}/ffc_combined_metrics_raw.csv"))
-  #write_rds(met_final, file = glue("{outdir}/met_seasonal_metrics.rds"))
+  # write_rds(met_final, file = glue("{outdir}/met_seasonal_metrics.rds"))
 
 }

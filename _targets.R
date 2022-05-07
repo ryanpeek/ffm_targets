@@ -2,6 +2,9 @@
 # Created by use_targets().
 
 # Load packages required to define the pipeline:
+# library(tidyverse)
+# library(glue)
+# library(fs)
 library(targets)
 library(tarchetypes) # Load other packages as needed. # nolint
 
@@ -50,45 +53,63 @@ list(
              cue = tar_cue("never")),
 
   # step 3: load nhd flowlines and revise catchments
-  tar_target(revise_catchments,
+  tar_target(revised_catchments,
              f_revise_catchments(indir = "data_input",
                                  outdir = "data_output",
                                  catch_input = "catchments_final_lshasta.rds")),
   # step 4: get comids
-  tar_target(get_comids,
-             f_get_comids(revise_catchments)),
+  tar_target(comids,
+             f_get_comids(revised_catchments[["flowlines"]])),
 
   # step 5: filter NHD science base data to comids of interest
   tar_target(filter_scibase_comids,
              purrr::map(scibase_filelist$path,
                         ~f_extract_to_comids(.x,
-                                             comids = get_comids$comid,
+                                             comids = comids$comid,
                                              outdir = "data_output/scibase_nhd")) %>%
                pluck(., 1)),
 
   # step 6: make krug csv (requires having run revise_catchments.R)
-  tar_target(make_krug_data,
+  tar_target(krug_data,
               f_get_krug_data("data_input/scibase_nhd/krug_runoff_avg_ann_1951-1980.e00",
                               "data_output/nhdplus_vaa.gpkg",
-                              revise_catchments,
+                              revised_catchments[["flowlines"]],
                               "data_output/scibase_nhd/")),
 
   # step 7: make the seasonal precip/tav/run variables
-  tar_target(make_met_data,
+  tar_target(met_data,
              f_make_met_data(filter_scibase_comids, "data_output")),
 
 
   # step 8: combine all the data!
-  tar_target(make_cat_ffc_data,
-             f_combine_met_cat_data(make_met_data, "data_output"))
+  tar_target(cat_ffc_data,
+             f_combine_met_cat_data(met_data, revised_catchments[["catchments"]], "data_output")),
+
+  tar_target(accum_data,
+             f_make_accumulation(cat_ffc_data,
+                                 revised_catchments[["flowlines"]],
+                                 xwalk, "data_output"))
 
 )
 
 
-
 ## Interacting with targets
 
+## quick overview of main components of workflow
 # tar_glimpse()
-# tar_make()
-# tar_validate()
+
+## overview of workflow with links between
 # tar_visnetwork()
+
+## DO STUFF!
+# tar_make()
+
+## make sure data are valid and pipeline works
+# tar_validate()
+
+## to reset and rerun, use invalidate
+# tar_invalidate(met_data)
+
+## check warnings
+# tar_meta(fields=warnings)
+# just spatial warnings so all ok

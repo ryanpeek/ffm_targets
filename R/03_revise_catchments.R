@@ -192,6 +192,6 @@ f_revise_catchments <- function(indir, outdir,
   flownet_main %>%
     write_rds(file=glue("{outdir}/sf_flowlines_trimmed_w_areas.rds"))
 
-  return(flownet_main)
+  return(list(flowlines = flownet_main, catchments = catch_main))
 }
 

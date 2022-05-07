@@ -14,7 +14,7 @@
 f_extract_to_comids <- function(infile, comids, outdir){
 
   fs::dir_create(outdir)
-  if(!file.exists(infile)){
+  if(!file.exists(glue("{outdir}/{path_ext_remove(path_file(infile))}.csv"))){
     print(glue("Reading {path_file(infile)}"))
     f1 <- vroom(infile, show_col_types = FALSE) %>% # fast readin
       dplyr::rename_with(., toupper) %>%

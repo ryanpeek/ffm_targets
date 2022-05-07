@@ -68,6 +68,7 @@ f_get_krug_data <- function(inputfile, nhd_data,
   #fs::dir_create(here("data_output/nhd_catchdat"))
   write_csv(krug_runoff_csv, file = glue("{outdir}/KRUG_RUNOFF.csv"))
   print("KRUG_RUNOFF.csv trimmed saved in scibase_nhd")
+  return(krug_runoff_csv)
 }
 
 # setup vars

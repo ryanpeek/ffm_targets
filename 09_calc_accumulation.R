@@ -1,8 +1,22 @@
 # make catchment areas calculate additional variables
 # using area weighted average (catch area / tot basin area)
 
+library(targets)
+library(sf)
+library(tidyverse)
+library(glue)
+library(igraph)
+tar_load(revised_catchments)
+flowlines <- revised_catchments[["flowlines"]]
+tar_load(cat_ffc_data)
+tar_load(xwalk)
+
+library(mapview)
+mapviewOptions(fgb=FALSE)
+
 # requires:
 # the cleaned and prepped cat_ffc_data (raw by catchment/comid)
+
 # flowlines with comid and tocomid field
 # xwalk dataset for variable names
 # outdir
@@ -13,104 +27,78 @@ f_calc_accum_data <- function(cat_data, flowlines, xwalk, outdir){
 
   flowlines_trim <- dplyr::select(flowlines,
                            comid, tocomid, hydroseq,
-                           lengthkm, areasqkm, area_weight, totdasqkm) %>%
-    st_drop_geometry() %>%
+                           lengthkm, areasqkm, area_weight, totdasqkm,
+                           sort_order,arbolatesum) %>%
+    #st_drop_geometry() %>%
     filter(!is.na(tocomid))
 
-# to view a network use this:
-  # library(networkD3)
-  # p <- simpleNetwork(flowlines, Source = "comid", Target = "tocomid", height = "400px",
-  #                    width = "400px",
-  #                    fontSize = 16,
-  #                    fontFamily = "serif",
-  #                    nodeColour = "darkblue",
-  #                    linkColour = "steelblue",
-  #                    opacity = 0.9, zoom = TRUE, charge = -40)
+  # CALC FLOW NETWORK (nhdtools) --------------------------
 
-  # fix the network edges and identify u/s & d/s "ends" termini
-    flow_tips <- flowlines_trim %>%
-    filter(!comid %in% tocomid) %>%
-    pull(comid) %>%
-    unique() %>%
-    as.character()
+  # get u/s trib comids from starting comid
+  get_us_tribs <- function (network, COMID, distance = NULL)
+  {
+    if ("sf" %in% class(network))
+      network <- sf::st_set_geometry(network, NULL)
+    start_comid <- dplyr::filter(network, comid == COMID)
+    if (!is.null(distance)) {
+      if (distance < start_comid$lengthkm)
+        return(comid)
+    }
+    # network filter to names:
+    netcols_needed <- c("comid", "lengthkm", "levelpathi","pathlength", "hydroseq","dnhydroseq")
+    network <- dplyr::select(network, all_of(netcols_needed))
 
-    # for single drainage network this should be a single outlet or zero
-    flow_out <- flowlines_trim %>%
-      filter(!tocomid %in% comid) %>%
-      pull(tocomid) %>%
-      unique() %>%
-      as.character()
-
-    # convert edge matrix to igraph
-
-    # OPTIONAL: make into a matrix:
-    # turn edge dataframe into matrix for igraph conversion
-    # flow_matrix <- flowlines_trim %>%
-    #   select(1:2) %>%
-    #   mutate(across(c(comid:tocomid), ~as.character(.))) %>%
-    #   as.matrix()
-    # flow_igraph <- graph_from_edgelist(flow_matrix, directed = FALSE)
-
-    # creating igraph obj w/out directionality (directed=FALSE) allows u/s path creation
-    flow_igraph <- graph_from_data_frame(flowlines_trim, directed=FALSE)
-
-
-    # CALC FLOW NETWORK --------------------------------
-
-    # get list all simple paths for every comid that isn't a tip
-    # flow_comids_mid <- flowlines_trim %>%
-    #   filter(!comid %in% flow_us_ends, !comid %in% flow_ds_ends) %>%
-    #   pull(comid) %>% as.character()
-    # flow_mids + flow_tips = unique comids
-
-    # then use that to calculate flowpaths for mid comids
-    flowpaths <- map(flow_out,
-                          ~all_simple_paths(flow_igraph,
-                                            from = .x,
-                                            to = flow_tips)) %>%
-      # unlist to make easier to work with
-      unlist(., recursive = FALSE)
-
-    ## CONVERT FLOWPATHS TO DATAFRAME -------------------
-
-    # list of lists: 1 item for each mid comid, sub 1 item for every tip
-    flowpaths_df <- map(flowpaths, ~as_ids(.x)) %>%
-      as.matrix(.) %>% as.data.frame(.) %>%
-      magrittr::set_colnames("paths_lst") %>%
-      rowid_to_column(var="row_id")
-
-    # create final dataframe of paths
-    flowpaths_df <- unnest(flowpaths_df, paths_lst) %>%
-      group_by(row_id) %>%
-      mutate(paths_chr = paste0(paths_lst, collapse = " ")) %>%
-      select(row_id, paths_chr) %>%
-      unique() %>%
-      mutate(comlist = strsplit(paths_chr, " "),
-             downstream_comid = map_chr(comlist, c(2)),
-             upstream_comid = map_chr(comlist, last)) %>%
-      select(row_id, downstream_comid, upstream_comid, comlist, paths_chr)
-
-    ## MAKE LIST FOR ACCUMULATION ROUTING
-
-    ## returns a list of comids for any given comid
-    comid_ls <- map(flowpaths_df$comlist,
-                    ~unlist(strsplit(.x, ", "))) %>%
-      map(., ~as.numeric(.x))
-
-    ## get the list
-    comid_ls2 <- map_depth(comid_ls, 1,
-                     ~dplyr::filter(flowlines_trim, comid %in% .x) %>%
-                       pull(comid)) #%>%
-      map(., ~discard(., .x==0)) #%>%
-      set_names(flowpaths_df$upstream_comid)
-
-    map(comid_ls2, length)
+    # function to get the comids
+    private_get_UT <- function(network, COMID){
+      main <- filter(network, comid %in% COMID)
+      if (length(main$hydroseq) == 1) {
+        full_main <- filter(network, levelpathi %in% main$levelpathi &
+                              hydroseq >= main$hydroseq)
+        trib_lpid <- filter(network, dnhydroseq %in% full_main$hydroseq &
+                              !levelpathi %in% main$levelpathi &
+                              hydroseq >= main$hydroseq)$levelpathi
+      }
+      else {
+        full_main <- filter(network, levelpathi %in% main$levelpathi)
+        trib_lpid <- filter(network, dnhydroseq %in% full_main$hydroseq &
+                              !levelpathi %in% main$levelpathi)$levelpathi
+      }
+      trib_comid <- filter(network, levelpathi %in% trib_lpid)$comid
+      if (length(trib_comid) > 0) {
+        return(c(full_main$comid, private_get_UT(network, trib_comid)))
+      }
+      else {
+        return(full_main$comid)
+      }
+    }
+    all <- private_get_UT(network, COMID)
 
 
-  # hydroseq ls of comids
-  map_depth(comid_ls, 2, ~length(.x)) # check lengths, 1 is a trib or spur
+    if (!is.null(distance)) {
+      stop_pathlength <- start_comid$pathlength - start_comid$lengthkm +
+        distance
+      network <- filter(network, comid %in% all)
+      return(filter(network, pathlength <= stop_pathlength)$comid)
+    }
+    else {
+      return(all)
+    }
+  }
 
-  # n=33
+  #tst <- get_us_tribs(flowlines, 3917164)
+  # make list of lists for each comid:
+  comlists <- map(flowlines$comid, ~get_us_tribs(flowlines, .x))
+
+  # make it named
+  comlists <- comlists %>%
+    set_names(flowlines$comid)
+
+  # see which are tips (only single comid)
+  keep(comlists, ~length(.x)==1) %>% names(.) %>% as.numeric()
+
+  # get only items that AREN'T outlet or TIPS
+  keep(comlists, ~length(.x)!=1) %>% names(.) %>% as.numeric()
+
   # ACCUMULATION! ----------
   ## AWA -----------------------------------------
   # SUM of value * area weight + value * area weight
@@ -325,3 +313,92 @@ f_calc_accum_data <- function(cat_data, flowlines, xwalk, outdir){
     select(unique(names_df$mod_input_final)) %>%
     # filter out years 1945-1949
     filter(!wa_yr %in% c(1945:1949))
+
+
+
+
+
+# IGRAPH NETWORK APPROACH -------------------------
+
+  # to view a network use this:
+  # library(networkD3)
+  # p <- simpleNetwork(flowlines, Source = "comid", Target = "tocomid", height = "400px",
+  #                    width = "400px",
+  #                    fontSize = 16,
+  #                    fontFamily = "serif",
+  #                    nodeColour = "darkblue",
+  #                    linkColour = "steelblue",
+  #                    opacity = 0.9, zoom = TRUE, charge = -40)
+
+## Make Tips and Outlets ---------------------------
+
+  # # fix the network edges and identify u/s & d/s "ends" termini
+  # flow_tips <- flowlines_trim %>%
+  #   filter(!comid %in% tocomid) %>%
+  #   pull(comid) %>%
+  #   unique() %>%
+  #   as.character()
+  #
+  # # get flow ENDS: for single network, should be=outlet/zero
+  # flow_out <- flowlines_trim %>%
+  #   filter(!tocomid %in% comid) %>%
+  #   pull(tocomid) %>%
+  #   unique() %>%
+  #   as.character()
+  #
+  # # creating igraph obj w/out directionality (directed=FALSE) allows u/s path creation
+  # flow_igraph <- graph_from_data_frame(flowlines_trim, directed=FALSE)
+  #
+## Calc flow network (igraph) --------------------------------
+  #
+  # # calculate flowpaths from outlet to tips
+  # flowpaths <- map(flow_out,
+  #                  ~all_simple_paths(flow_igraph,
+  #                                    from = .x,
+  #                                    to = flow_tips)) %>%
+  #   # unlist to make easier to work with
+  #   unlist(., recursive = FALSE)
+  #
+  # # calculate from tips to outlet
+  # flowpaths <- map(flow_tips,
+  #                  ~all_simple_paths(flow_igraph,
+  #                                    from = .x,
+  #                                    to = flow_out)) %>%
+  #   # unlist to make easier to work with
+  #   unlist(., recursive = FALSE)
+  #
+## Convert flowpaths to dataframe -------------------
+  #
+  # # list of lists: 1 item for each path to flowtip
+  # flowpaths_df <- map(flowpaths, ~as_ids(.x)) %>%
+  #   as.matrix(.) %>% as.data.frame(.) %>%
+  #   magrittr::set_colnames("paths_lst") %>%
+  #   rowid_to_column(var="row_id")
+  #
+  # # create final dataframe of paths
+  # flowpaths_df <- unnest(flowpaths_df, paths_lst) %>%
+  #   group_by(row_id) %>%
+  #   mutate(paths_chr = paste0(paths_lst, collapse = " ")) %>%
+  #   select(row_id, paths_chr) %>%
+  #   unique() %>%
+  #   mutate(comlist = strsplit(paths_chr, " "),
+  #          downstream_comid = map_chr(comlist, c(2)),
+  #          upstream_comid = map_chr(comlist, last)) %>%
+  #   select(row_id, downstream_comid, upstream_comid, comlist, paths_chr)
+  #
+## Make list of COMIDs for each comid ----------------------
+  #
+  # ## returns a list of comids for any given comid
+  # comid_ls <- map(flowpaths_df$comlist,
+  #                 ~unlist(strsplit(.x, ", "))) %>%
+  #   map(., ~as.numeric(.x))
+  #
+  # ## get the list
+  # comid_ls2 <- map_depth(comid_ls, 1,
+  #                        ~dplyr::filter(flowlines_trim, comid %in% .x) %>%
+  #                          pull(comid)) #%>%
+  # map(., ~discard(., .x==0)) #%>%
+  # set_names(flowpaths_df$upstream_comid)
+  #
+  # map(comid_ls2, length)
+  #

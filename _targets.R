@@ -6,7 +6,7 @@
 # library(glue)
 # library(fs)
 library(targets)
-library(tarchetypes) # Load other packages as needed. # nolint
+library(tarchetypes) # Load other packages as needed
 
 # Set target options:
 options(tidyverse.quiet = TRUE)
@@ -57,15 +57,15 @@ list(
              f_revise_catchments(indir = "data_input",
                                  outdir = "data_output",
                                  catch_input = "catchments_final_lshasta.rds")),
-  # step 4: get comids
-  tar_target(comids,
-             f_get_comids(revised_catchments[["flowlines"]])),
+  # step 4: get flowline comids and accumulation list
+  tar_target(comid_network,
+             f_get_comid_network(revised_catchments[["flowlines"]])),
 
   # step 5: filter NHD science base data to comids of interest
   tar_target(filter_scibase_comids,
              purrr::map(scibase_filelist$path,
                         ~f_extract_to_comids(.x,
-                                             comids = comids$comid,
+                                             comids = comid_network[["comids"]]$comid,
                                              outdir = "data_output/scibase_nhd")) %>%
                pluck(., 1)),
 
@@ -83,12 +83,18 @@ list(
 
   # step 8: combine all the data!
   tar_target(cat_ffc_data,
-             f_combine_met_cat_data(met_data, revised_catchments[["catchments"]], "data_output")),
+             f_combine_met_cat_data(met_data,
+                                    revised_catchments[["catchments"]],
+                                    "data_output")),
 
+  # step 9: make the accumulated data for comids
   tar_target(accum_data,
-             f_make_accumulation(cat_ffc_data,
-                                 revised_catchments[["flowlines"]],
-                                 xwalk, "data_output"))
+             f_calc_accum_data(cat_ffc_data,
+                               comid_network[["comlist_accum"]],
+                               xwalk,
+                               "data_output")),
+
+  # step 10! Run the model
 
 )
 

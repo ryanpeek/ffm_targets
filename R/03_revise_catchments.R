@@ -183,7 +183,8 @@ f_revise_catchments <- function(indir, outdir,
 
   print(glue("writing out data to {outdir}..."))
 
-  # write out!!
+# SAVE OUT ----------------------------------------------------------------
+
   # need a csv with comid, area, and drain area
   catch_main %>% st_drop_geometry() %>%
     write_csv(file = glue("{outdir}/sf_catch_trimmed_w_areas.csv"))

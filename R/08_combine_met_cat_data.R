@@ -64,12 +64,13 @@ f_combine_met_cat_data <- function(metdata, catchment_dat, outdir){
   #names(cat_ffc_data) %>% as_tibble() %>% View(title = "finnames2")
 
   # what's missing
-  #xwalk[!xwalk$mod_input_final %in% names(cat_ffc_data),c(1:4,6)] %>% arrange(accum_op_class)
+  #xwalk[!xwalk$mod_input_final %in% names(cat_ffc_data),c(1:4,6)] %>% arrange(accum_op_class) %>% View()
 
   # these can all be calculated and added in next script
 
   # export
   write_csv(cat_ffc_data, file = glue("{outdir}/ffc_combined_metrics_raw.csv"))
   # write_rds(met_final, file = glue("{outdir}/met_seasonal_metrics.rds"))
+  return(cat_ffc_data)
 
 }

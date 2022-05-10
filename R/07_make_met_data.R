@@ -151,6 +151,6 @@ f_make_met_data <- function(filelist, outdir){
   #write_rds(met_final, file = glue("{outdir}/met_seasonal_metrics.rds"))
   write_csv(met_final, file = glue("{outdir}/met_seasonal_metrics.csv"))
 
-  met_out <- read_csv(glue("{outdir}/met_seasonal_metrics.csv"))
-  return(met_out)
+  #met_out <- read_csv(glue("{outdir}/met_seasonal_metrics.csv"))
+  return(met_final)
 }

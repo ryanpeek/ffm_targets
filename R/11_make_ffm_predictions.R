@@ -87,6 +87,9 @@ f_make_ffm_predictions <- function(rfs_list, accum_data, xwalk, ffm_metrics, out
   }
   print("All models completed!")
 
+  # get list of filepaths for next step
+  filepaths <- fs::dir_ls(glue("data_output/{outdir}"), glob = "*.csv")
+
   # DONE!
-  beepr::beep(2)
+  #beepr::beep(2)
 }

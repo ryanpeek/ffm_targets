@@ -11,10 +11,11 @@ library(tarchetypes) # Load other packages as needed
 # Set target options:
 options(tidyverse.quiet = TRUE)
 tar_option_set(
-  packages = c("tidyverse", "glue","sf","nhdplusTools",
+  packages = c("tidyverse", "glue", "here", "fs",
                "purrr","sbtools", "units", "janitor",
                "randomForest",
-               "here","fs","vroom", "rmapshaper","lwgeom"), # packages that your targets need to run
+               "vroom", "sf","nhdplusTools",
+               "rmapshaper","lwgeom"), # packages that your targets need to run
   format = "rds" # default storage format
 )
 
@@ -36,8 +37,11 @@ for (file in list.files("R", full.names = TRUE)) source(file)
 #              "Peak_Dur_2","Peak_Fre_2", "Peak_Dur_5","Peak_Fre_5",
 #              "Peak_Dur_10","Peak_Fre_10")
 
-# pick one or more
-ffm_metrics <- c("FA_Dur","Wet_Tim","Wet_BFL_Dur",
+# all
+ffm_metrics <- c("FA_Mag", "Wet_BFL_Mag_50","Wet_BFL_Mag_10",
+                 "SP_Mag","DS_Mag_90","DS_Mag_50",
+                 "Peak_2","Peak_5","Peak_10",
+                 "FA_Tim","FA_Dur","Wet_Tim","Wet_BFL_Dur",
                  "SP_Tim","SP_Dur","SP_ROC","DS_Tim","DS_Dur_WS",
                  "Peak_Dur_2","Peak_Fre_2", "Peak_Dur_5","Peak_Fre_5",
                  "Peak_Dur_10","Peak_Fre_10")
@@ -127,7 +131,12 @@ list(
              f_make_ffm_predictions(ffm_mods, accum_data,
                                     xwalk,
                                     ffm_metrics,
-                                    "ffm_predictions"))
+                                    "ffm_predictions")),
+
+  # STEP 12: COMBINE DATA IN SUMMARY ----------------------
+  tar_target(ffm_final_summary,
+             f_combine_ffm(ffm_predictions,
+                           outdir = "data_output/ffm_preds_summary"))
 
 )
 

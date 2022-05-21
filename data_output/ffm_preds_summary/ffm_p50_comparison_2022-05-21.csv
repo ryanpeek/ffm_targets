@@ -1,0 +1,73 @@
+comid,metric,full_p50,min_p50,north_p50,orig_p50,flow_component
+3917198,DS_Dur_WS,183,181,183.317,148,Dry-season baseflow
+3917950,DS_Dur_WS,180,163,178.904,139,Dry-season baseflow
+3917946,DS_Dur_WS,180.1,144,157.517,139,Dry-season baseflow
+3917198,DS_Mag_50,5.479,8.649,8.23,8.68,Dry-season baseflow
+3917950,DS_Mag_50,6.249,10.302,9.592,89.3,Dry-season baseflow
+3917946,DS_Mag_50,9.774,17.06,10.546,87.7,Dry-season baseflow
+3917198,DS_Mag_90,9.395,12.217,10.421,10.7,Dry-season baseflow
+3917950,DS_Mag_90,10.558,14.801,12.137,128,Dry-season baseflow
+3917946,DS_Mag_90,11.68,19.638,14.365,126,Dry-season baseflow
+3917198,DS_Tim,295.25,302.788,297.596,299,Dry-season baseflow
+3917950,DS_Tim,295,303.4,302.708,300,Dry-season baseflow
+3917946,DS_Tim,292,301,303.5,300,Dry-season baseflow
+3917198,FA_Dur,7.367,5.267,6.787,4,Fall pulse flow
+3917950,FA_Dur,7,5,6,4,Fall pulse flow
+3917946,FA_Dur,7,5,5.175,4,Fall pulse flow
+3917198,FA_Mag,21.053,25.231,23.606,27.5,Fall pulse flow
+3917950,FA_Mag,23.203,27.953,26.5,262,Fall pulse flow
+3917946,FA_Mag,26.828,35.003,29.288,268,Fall pulse flow
+3917198,FA_Tim,40,37.75,39.55,32.3,Fall pulse flow
+3917950,FA_Tim,39.725,34.646,38.654,27,Fall pulse flow
+3917946,FA_Tim,38.692,32.812,34.05,27,Fall pulse flow
+3917198,Peak_10,3470.625,2131.504,2249.607,373,Peak flow
+3917950,Peak_10,3594.417,2456.544,2456.544,5850,Peak flow
+3917946,Peak_10,3235.167,2961.713,2846.424,3570,Peak flow
+3917198,Peak_2,472.912,573.995,430.393,143,Peak flow
+3917950,Peak_2,677.074,698.674,488.836,1530,Peak flow
+3917946,Peak_2,751.033,876.008,751.033,1650,Peak flow
+3917198,Peak_5,2035.644,1535.798,1720.945,165,Peak flow
+3917950,Peak_5,2260.969,1694.083,1784.921,2500,Peak flow
+3917946,Peak_5,2464.156,2009.485,1962.952,2570,Peak flow
+3917198,Peak_Dur_10,2,1.583,1.85,1,Peak flow
+3917950,Peak_Dur_10,2,1.125,1.5,1,Peak flow
+3917946,Peak_Dur_10,1.75,1,1.25,1,Peak flow
+3917198,Peak_Dur_2,11,6,10,2,Peak flow
+3917950,Peak_Dur_2,11,3.1,7,2,Peak flow
+3917946,Peak_Dur_2,8.5,2,3.1,2,Peak flow
+3917198,Peak_Dur_5,4.2,2,3,1,Peak flow
+3917950,Peak_Dur_5,4,2,2,1,Peak flow
+3917946,Peak_Dur_5,3,2,2,1,Peak flow
+3917198,Peak_Fre_10,1.333,1,1,1,Peak flow
+3917950,Peak_Fre_10,1.25,1,1,1,Peak flow
+3917946,Peak_Fre_10,1,1,1,1,Peak flow
+3917198,Peak_Fre_2,2,1.333,1.667,1,Peak flow
+3917950,Peak_Fre_2,1.75,1.333,1.5,1,Peak flow
+3917946,Peak_Fre_2,1.55,1,1.2,1,Peak flow
+3917198,Peak_Fre_5,1.75,1,1,1,Peak flow
+3917950,Peak_Fre_5,1.383,1,1,1,Peak flow
+3917946,Peak_Fre_5,1,1,1,1,Peak flow
+3917198,SP_Dur,105.692,86.75,99.438,77.6,Spring recession flow
+3917950,SP_Dur,104.6,83.725,95,85.8,Spring recession flow
+3917946,SP_Dur,103.583,85.175,85.675,86,Spring recession flow
+3917198,SP_Mag,66.301,65.58,64.448,90,Spring recession flow
+3917950,SP_Mag,72.604,72.648,70.845,770,Spring recession flow
+3917946,SP_Mag,81.118,127.486,80.866,770,Spring recession flow
+3917198,SP_ROC,0.083,0.063,0.07,0.056,Spring recession flow
+3917950,SP_ROC,0.078,0.062,0.066,0.056,Spring recession flow
+3917946,SP_ROC,0.072,0.062,0.065,0.056,Spring recession flow
+3917198,SP_Tim,250.196,231,240.65,223,Spring recession flow
+3917950,SP_Tim,244.525,222.817,230.396,227,Spring recession flow
+3917946,SP_Tim,235.5,218.225,219.35,226,Spring recession flow
+3917198,Wet_BFL_Dur,112,115.792,114,121,Wet-season baseflow
+3917950,Wet_BFL_Dur,111.9,122.854,118.325,121,Wet-season baseflow
+3917946,Wet_BFL_Dur,116.85,126.775,125.625,126,Wet-season baseflow
+3917198,Wet_BFL_Mag_10,6.908,10.327,8.65,10.8,Wet-season baseflow
+3917950,Wet_BFL_Mag_10,8.473,12.482,10.338,132,Wet-season baseflow
+3917946,Wet_BFL_Mag_10,10.219,13.615,12.452,131,Wet-season baseflow
+3917198,Wet_BFL_Mag_50,12.084,25.432,18.908,32.5,Wet-season baseflow
+3917950,Wet_BFL_Mag_50,13.998,28.531,22.061,301,Wet-season baseflow
+3917946,Wet_BFL_Mag_50,17.451,38.361,26.403,304,Wet-season baseflow
+3917198,Wet_Tim,125.579,111.433,112.9,73.8,Wet-season baseflow
+3917950,Wet_Tim,117.95,93.025,108.688,90.2,Wet-season baseflow
+3917946,Wet_Tim,108.35,71.833,78.662,88.1,Wet-season baseflow

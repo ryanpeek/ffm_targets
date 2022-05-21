@@ -75,8 +75,11 @@ list(
              cue = tar_cue("never")),
 
   ## STEP 3: load nhd flowlines and revise catchments --------------------
+
+  # can change this function to f_revise_catchments_full for full catch
+  # or to f_revise_catchments_north to drop terminal basins in south
   tar_target(revised_catchments,
-             f_revise_catchments_full(indir = "data_input",
+             f_revise_catchments_north(indir = "data_input",
                                  outdir = "data_output",
                                  startcomid = "3917946")),
                                  #catch_input = "catchments_final_lshasta.rds")),
@@ -140,7 +143,7 @@ list(
   tar_target(ffm_final_summary,
              f_combine_ffm(ffm_predictions,
                            outdir = "data_output/ffm_preds_summary",
-                           filename = "final_ffm_preds_lshasta_fullwatershed"))
+                           filename = "final_ffm_preds_lshasta_northwatershed"))
 
 )
 

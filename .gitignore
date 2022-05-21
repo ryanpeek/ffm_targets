@@ -8,6 +8,5 @@ data_input/scibase_nhd/
 data_output/scibase_nhd/*csv
 data_output/ffm_models/*rds
 data_output/ffm_predictions/*csv
-data_output/ffm_preds_summary/*html
+figures/*html
 *.html
-*.html.zip

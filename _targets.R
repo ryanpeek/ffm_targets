@@ -28,16 +28,19 @@ for (file in list.files("R", full.names = TRUE)) source(file)
 #              "Wet_BFL_Mag_50","Wet_BFL_Mag_10",
 #              "SP_Mag",
 #              "DS_Mag_90","DS_Mag_50")
-# ## peak
-# ffm_peak <- c("Peak_2","Peak_5","Peak_10")
-#
-# ## non peak/non mag
+
+## peak
+#ffm_peak <- c("Peak_2","Peak_5","Peak_10")
+
+
+## non peak/non mag
 # ffm_non <- c("FA_Tim","FA_Dur","Wet_Tim","Wet_BFL_Dur",
 #              "SP_Tim","SP_Dur","SP_ROC","DS_Tim","DS_Dur_WS",
 #              "Peak_Dur_2","Peak_Fre_2", "Peak_Dur_5","Peak_Fre_5",
 #              "Peak_Dur_10","Peak_Fre_10")
 
 # all
+
 ffm_metrics <- c("FA_Mag", "Wet_BFL_Mag_50","Wet_BFL_Mag_10",
                  "SP_Mag","DS_Mag_90","DS_Mag_50",
                  "Peak_2","Peak_5","Peak_10",
@@ -57,7 +60,7 @@ list(
   tar_target(xwalk,
              readr::read_csv("data_input/08_accumulated_final_xwalk.csv")),
 
-  ## STEP 2: filter to comids and download the files --------
+  ## STEP 2: filter and download raw files that match xwalk file vars --------
   tar_target(scibase_to_download,
              scibase_urls %>%
                filter(grepl("^PPT[0-9]{4}_CAT_CONUS", fname)|
@@ -65,26 +68,28 @@ list(
                         grepl("^RUN[0-9]{4}_CAT_CONUS", fname)|
                         fs::path_ext_remove(fname) %in%
                         fs::path_ext_remove(xwalk$source_file))),
-  # Download
+  # Download once
   tar_target(scibase_filelist,
              f_download_scibase(scibase_to_download, "data_input/scibase_nhd"),
              cue = tar_cue("never")),
 
   ## STEP 3: load nhd flowlines and revise catchments --------------------
   tar_target(revised_catchments,
-             f_revise_catchments(indir = "data_input",
+             f_revise_catchments_full(indir = "data_input",
                                  outdir = "data_output",
-                                 catch_input = "catchments_final_lshasta.rds")),
+                                 startcomid = "3917946")),
+                                 #catch_input = "catchments_final_lshasta.rds")),
 
   ## STEP 4: get flowline comids and accumulation list -------------------
-  tar_target(comid_network,
-             f_get_comid_network(revised_catchments[["flowlines"]])),
+  # can skip this step now
+  #tar_target(comid_network,
+  #           f_get_comid_network(revised_catchments[["flowlines"]])),
 
   ## STEP 5: filter NHD science base data to comids of interest ----------
   tar_target(filter_scibase_comids,
              purrr::map(scibase_filelist$path,
                         ~f_extract_to_comids(.x,
-                                             comids = comid_network[["comids"]]$comid,
+                                             comids = revised_catchments[["flowlines"]]$comid,
                                              outdir = "data_output/scibase_nhd")) %>%
                pluck(., 1)),
 
@@ -109,7 +114,7 @@ list(
   # STEP 9: make the accumulated data for comids ---------------------------
   tar_target(accum_data,
              f_calc_accum_data(cat_ffc_data,
-                               comid_network[["comlist_accum"]],
+                               revised_catchments[["comlist_accum"]],
                                xwalk,
                                "data_output")),
 

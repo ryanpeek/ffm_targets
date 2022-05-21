@@ -1,0 +1,561 @@
+---
+title: "Little Shasta Watershed Delineation"
+author:
+  - name: Ryan Peek 
+    affiliation: Center for Watershed Sciences, UCD
+    affiliation_url: https://watershed.ucdavis.edu
+date: "`r Sys.Date()`"
+output: 
+  distill::distill_article:
+    toc: true
+    code_folding: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE, tidy = FALSE,
+                      message = FALSE, warning = FALSE)
+
+library(knitr)
+library(here)
+library(glue)
+library(sf)
+suppressPackageStartupMessages(library(tidyverse))
+library(fs)
+library(units)
+library(sf)
+library(nhdplusTools)
+# Locations of interest
+loi_comids <- c(3917946, 3917950, 3917198)
+
+library(mapview)
+mapviewOptions(fgb = FALSE)
+
+# load("data_output/nhdPlot_comid_outlet_raw.rda")
+
+# get starting comid
+comidstart <- list(featureSource = "comid",
+                   featureID = "3917946") # -122.4768 41.71785
+
+```
+
+# Identifying Boundaries
+
+Before functional flow metrics can be generated, we need to delineate the boundaries for the watershed. In some cases this is very straightforward, as the underlying catchments (subunits of a watershed) cleanly nest within the watershed boundary and the streamlines are well described and correct.
+
+However, in some cases there are discrepancies in the underlying watershed boundaries and streamlines. For the Little Shasta watershed, there are problems with flowline components that are incorrectly delineated, as well as the catchments associated with the watershed boundary. These issues can cause problems with the functional flow model and metric predictions, where catchment variables need to be aggregated, analyzed, and used in functional flow models. 
+
+This document outlines the watershed and streamline delineations from the original raw available data, to the various options used to revise and re-generate watershed scale data used in functional flow models.
+
+## NHD Streamlines
+
+The raw NHD Little Shasta streamline network includes several canals that are part of the stream network. These canals should not be included in the watershed streamline delineation and associated flow accumulation analysis. 
+
+The downstream most stream segment for the Little Shasta River is `COMID: 3917946`. Here we can use the `{nhdplusTools}` package to pull and plot the upstream basin associated with the starting `COMID`. This delineation clearly shows a non-topographically derived basin, which is in large part to the inclusion of many different canals and artificial ditches as part of the streamline network.
+
+```{r nhdflowlines, eval=TRUE, echo=FALSE, layout="l-page", layout="l-page", fig.cap="The raw NHD data for upstream catchment and flowlines associated with the Little Shasta River outlet (maroon dot, COMID=3917946)"}
+
+# get starting comid
+comidstart <- list(featureSource = "comid",
+                   featureID = "3917946") # -122.4768 41.71785
+
+# get map from starting comid
+#png("figures/raw_nhd_watershed_map.png", width = 8, height = 10, units="in", res = 300)
+nhdPlot <- plot_nhdplus(comidstart,
+                    streamorder = 1,
+                    #basemap = "cartolight",
+                    plot_config = list(basin = list(lwd = 2),
+                                       outlets = list(
+                                         comid = list(col = "maroon"))))
+#dev.off()
+#save(nhdPlot, file = "data_output/nhdPlot_comid_outlet_raw.rda")
+```
+
+```{r print-nhdPlot, echo=F,eval=F, layout="l-page", fig.cap="The raw NHD data for upstream catchment and flowlines associated with the Little Shasta River outlet (maroon dot, COMID=3917946)"}
+
+knitr::include_graphics(here("figures/raw_nhd_watershed_map.png"))
+
+```
+
+
+## Watershed HUC12 Units
+
+Watersheds can be delineated using the HUC codes, with a lower HUC designating a larger watershed. These HUCs are nested, and should ostensibly match with the flowline and basin data that is pulled via the NHD dataset. If we pull the HUC8 and HUC12s associated with the Little Shasta River, (`1801020703`), we can see that these data don't overlap very cleanly.
+
+```{r huc12, layout="l-page", fig.cap="HUC8 in black, HUC12 in blue, and NHD catchment in orange"}
+
+# get huc8 based on outlet
+h8 <- get_huc8(nhdPlot$outlets)
+h12_all <- get_huc12(h8)
+h12_lsh <- h12_all %>% 
+  filter(huc12 %in% c("180102070301", "180102070302", "180102070303", "180102070304"))
+
+# plot these
+plot(h8$geometry, lwd=4)
+plot(h12_all$geometry, border="gray50", lwd=0.5, add=TRUE)
+plot(h12_lsh$geometry, border="blue", col=alpha("steelblue", 0.7), lwd=2, add=TRUE)
+plot(nhdPlot$basin$geometry, border="orange", col=alpha("orange", 0.3), lwd=0.8, add=TRUE)
+
+```
+
+Notably, the northern side of the Little Shasta is missing from the NHD basin (in orange), but is part of the HUC12 in blue. The Little Shasta HUC10 is comprised of all the blue HUC12's in the figure above.
+
+
+## NHD Catchments from Flowlines
+
+Finally, if we pull the NHD flowlines and associated catchments (one for each NHD flowline `COMID`), we can see the catchments (and thus the underlying catchment data the models require) are built on this delineation. Here we pull the flowlines and crop to the HUC12 watershed for the Little Shasta, which still includes many canals and associated drainages from the southern side of the Little Shasta, but which do not drain directly (via surface water paths) to the Little Shasta River.
+
+```{r nhdFlowlines, layout="l-page", fig.height=6, fig.cap="NHD Flowlines and Canals for Little Shasta"}
+
+# pull flowlines
+flowlines <- navigate_nldi(comidstart,
+                           mode = "UT",
+                           distance = 100)
+
+# crop to just the h12s (st_intersection will split across across H12)
+flowlines_trim <- flowlines$UT_flowlines[h12_lsh,] %>% 
+  # drop comid that extends outside
+  filter(!nhdplus_comid %in% c(3917382))
+
+# pull for HUC above just to pull catchments...
+huc_feat <- list(featureSource = "huc12pp", 
+                         featureID = "180102070501")
+flowline_huc <- navigate_nldi(huc_feat,
+                               mode = "UT",
+                               distance = 50)
+
+# pull extra comids
+flowlines_huc <- flowline_huc$UT_flowlines[h12_lsh[h12_lsh$huc12 %in% c(180102070303, 180102070304),],] %>% 
+  # filter canal comids that are completely outside of HUC12s
+  filter(!nhdplus_comid %in% c(3917928, 3917930, 3917242, 3917382, 3917954))
+# st_intersection splits comid across h12 boundaries (gives duplicates)
+
+#mapview(flowlines_huc) + mapview(h12_lsh) + mapview(flowlines_trim, color="blue")
+
+# note: COMIDs 3917382 and 3917928 extend inside/outside of h12
+# dropping both here
+
+# Make a distinct final comid list
+final_comids <- c(flowlines_huc$nhdplus_comid, flowlines_trim$nhdplus_comid) %>% unique(.)
+
+# view
+flowlines_final <- bind_rows(flowlines_huc, flowlines_trim) %>%
+  distinct(nhdplus_comid, .keep_all = TRUE)
+
+# mapview(flowlines_final, color="steelblue", layer.name="Flowlines for L. Shasta", show.legend=FALSE) +
+#   mapview(h12_lsh, col.regions="gray", alpha.regions=0.2, lwd=2, layer.name="H12") +
+#   mapview(flowlines_huc, color="green2", layer.name="H12 180102070501 Canals")
+
+
+```
+
+```{r downloadNHDplus, eval=FALSE, echo=FALSE}
+
+# download full dataset based on these comids
+nhdplus <- subset_nhdplus(comids = as.integer(final_comids),
+                          output_file = glue(here("data_output/nhdplus_full_vaa.gpkg")),
+                          nhdplus_data = "download",
+                          flowline_only = FALSE,
+                          overwrite = TRUE, return_data = FALSE)
+
+
+```
+
+In fact, the catchments highlighted in **orange** below are not part of the NHD watershed for the Little Shasta at all in the original delineation. Connections and routing between streamlines and canals further complicates this delineation, as many canals may connect streamlines in the opposite direction to the drainage/catchment order.
+
+```{r plotCatchments, layout="l-page", fig.height=6, fig.cap="Catchments for Little Shasta within HUC12"}
+
+# load data
+db <- here("data_output/lsh_nhdplus_raw_vaa.gpkg")
+nhd_flowlines <- st_read(db, "NHDFlowline_Network", quiet = TRUE)
+nhd_catchments <- st_read(db, "CatchmentSP", quiet = TRUE)
+
+# missing comids/catchments: 
+#catch_comids[!catch_comids$FEATUREID %in% nhd_catchments$featureid,]$FEATUREID
+coms_missing <- c(3917928, 948010095, 3917216, 3917940, 948010047,
+                  948010096, 3917924, 3917926, 948010092, 948010091,
+                  948010048, 3917100, 948010046)
+miss_catch <- nhd_catchments %>% filter(featureid %in% coms_missing)
+
+# plot catchments
+mapview(nhd_catchments, alpha.regions=0.3, col.regions="gray", 
+        layer.name="NHD Catchments") + 
+  mapview(h12_lsh, color="gray20", alpha.color=0.5, col.regions="gray20",
+          alpha.regions=0, lwd=4, layer.name="HUC12") +
+  mapview(miss_catch, col.regions="orange", alpha.regions=0.4,
+          layer.name="Missing/MisID Catchments")+
+  mapview(nhd_flowlines %>% filter(ftype!="CanalDitch"), 
+          layer.name="Streams only") + 
+  mapview(nhd_flowlines %>% filter(ftype=="CanalDitch"), color="forestgreen", lwd=2, layer.name="Canals")
+  
+
+```
+
+# Dealing with Discrepancies
+
+In particular, the canal which delivers water from Lake Shastina appears to be routed as if it drains into the Little Shasta River. To address inaccuracies in the NHD flowlines and catchments associated the following steps were taken:
+
+ 1. We identified natural stream channel from artificial (canal) channels, and filtered all artificial segments out, and fixed mis-classified segments.
+ 2. We identified catchments based on the new clean streamline dataset, and create a revised catchment layer, which included all catchments that occurred within (or nearly completely within) the NHD HUC10/HUC12 boundary.^[Both `COMID 3917928` and `COMID 3917382` overlapped outside of the HUC10 boundary, but each was included in the analysis]. 
+ 3. We attributed each catchment within the HUC10 to a `COMID`, and included created a clean stream network which routed each `COMID` to a downstream `COMID`, culminating at the Little Shasta confluence with the Shasta River (`COMID=3917946`), according to topography and ground-truthed knowledge of the watershed. Any `COMID` that did not have a clear surface water or topographic drainage to a downstream catchment within the basin was dropped.
+ 4. We then re-calculated the catchment area, accumulated drainage area, and total drainage area for each catchment using the `{nhdtoolsPlus}` package.
+
+```{r cleanEnviro, echo=FALSE, eval=TRUE}
+
+rm(flowlines, flowline_huc, flowlines_huc, flowlines_trim,
+   flowlines_final,
+   h12_all, h8, nhdPlot, huc_feat)
+
+```
+
+
+## Selecting Catchments
+
+The first step is to identify the streamlines that flow to the mainstem Little Shasta, remove any all canals, and select and re-route the network to match this cleaned network. While not correct from a streamflow standpoint, this allows us to use the catchments we need to create a stream network.
+
+```{r trimcanals}
+
+comid_trim <- nhd_flowlines %>%
+  filter(fcode %in% c(46006, 46003)) %>% 
+  # add these connectors back in
+  bind_rows(., nhd_flowlines %>% 
+              filter(comid %in% 
+                       # canals
+                       c(948010091, 948010089, 948010092,3917222,
+                         3917226, 3917270, 3917952, 3917266,
+                         948010095, 948010096)))
+
+catch_trim <- nhd_catchments %>%
+  filter(featureid %in% comid_trim$comid)
+
+# get nodes (or use nhdtoolsPlus::get_nodes)
+comid_nodes <- 
+  comid_trim %>% 
+  select(comid, tonode, fromnode, geom) %>%
+  mutate(node_start = lwgeom::st_startpoint(geom),
+         node_end = lwgeom::st_endpoint(geom))
+
+# assign obj for comid start and end
+comid_nodes_start <- comid_nodes
+st_geometry(comid_nodes_start) <- "node_start"
+#head(comid_nodes_start)
+comid_nodes_end <- comid_nodes
+st_geometry(comid_nodes_end) <- "node_end"
+
+# map
+# mapview(comid_trim, color="steelblue", lwd=2, layer.name="Trimmed NHD flowlines") + 
+#   mapview(catch_trim, layer.name="Catchments", alpha.regions=0.3) + 
+#   mapview(h12_lsh, lwd=4, alpha.regions=0, color="gray30", col.regions="gray30", layer.name="HUC12") +
+#   mapview(comid_trim %>% filter(!fcode %in% c(46006, 46003)), color="red", 
+#           layer.name="Canals") +
+#     mapview(comid_nodes_start, col.regions="orange", layer.name="Node Start", cex=3) +
+#   mapview(comid_nodes_end, col.regions="green", layer.name="Node End", cex=3)
+# 
+```
+
+We can now use this set of `COMIDs` and flowlines to create a cleaned flow network, which is used for the accumulation of catchment variables. Here we add nodes which represent the start and end and are used to calculate the flow network. Notably there are a few where canal/flow direction is opposite (see red segments).
+
+```{r makeFlownet, layout="l-page", fig.height=6, fig.cap="Visualize start and end nodes of NHD flowlines. Red segments need revision."}
+
+# visualize nodes
+mapview(comid_nodes_start, 
+        col.regions="forestgreen", layer.name="Start", cex=3) +
+  mapview(comid_nodes_end, col.regions="orange", layer.name="End", cex=5) +
+  mapview(comid_trim %>% 
+            select(comid, fromnode, tonode, hydroseq, dnhydroseq), 
+          zcol="fromnode", legend=FALSE) +
+  mapview(comid_trim %>% 
+            select(comid, fromnode, tonode, hydroseq, dnhydroseq) %>% 
+            filter(comid %in% c("948010095", "948010096", "948010092")), 
+          color="red", layer.name="Need to Fix") +
+  mapview(catch_trim, alpha.regions=0, color="gray")
+
+```
+
+## Revising Nodes and `COMIDs`
+
+We next need to clean and revise the nodes and comids associated with stream segments (and connecting canals) to create a complete flow network that routes flow to the outlet (Little Shasta confluence with main Shasta River). This requires modifying or switching a few different stream segments as the flow in the canal is opposite the flow direction in the river.
+
+```{r edit-comids}
+
+# edit comids and nodes:
+comid_trim_rev <- comid_trim %>% 
+  select(-c(id, fdate:gnis_name, reachcode:wbareacomi, shape_length, frommeas:areasqkm, divdasqkm:enabled)) %>%
+  mutate(
+    # the start node
+    fromnode = case_when(
+      comid == 948010095 ~ 10013981,
+      comid == 948010096 ~ 10086523,
+      comid == 948010092 ~ 10086520,
+      TRUE ~ fromnode),
+    # end node
+    tonode = case_when(
+      comid == 948010095 ~ 10086523,
+      comid == 948010096 ~ 10014067, 
+      comid == 948010092 ~ 10014066,
+      TRUE ~ tonode),
+    # dnhydroseq
+    dnhydroseq = case_when(
+      #is.na(dnhydroseq) ~ NA_real_,
+      comid == 948010095 ~ 10020959,
+      comid == 948010096 ~ 10021351,
+      comid == 948010046 ~ 10020959,
+      comid == 948010092 ~ 10032346,
+      TRUE ~ dnhydroseq),
+    # uphydroseq
+    uphydroseq = case_when(
+      comid == 948010095 ~ 0,
+      comid == 948010096 ~ 10026762,
+      comid == 948010046 ~ 10020959,
+      comid == 948010091 ~ 0,
+      comid == 948010092 ~ 0,
+      TRUE ~ uphydroseq))
+
+# now make cleaned flownet
+flownet <- get_tocomid(comid_trim_rev, return_dendritic = TRUE, missing = 0, add = TRUE) %>% 
+  select(comid, tocomid, fromnode, tonode, hydroseq, dnhydroseq, ftype, fcode, lengthkm, levelpathi, totdasqkm, terminalfl, startflag, terminalpa, divergence) %>% 
+  mutate(
+    tocomid = case_when(
+      comid == 948010095L ~ 948010096L,
+      comid == 948010092L ~ 3917948L,
+      comid == 948010046L ~ 948010096L,
+      TRUE ~ tocomid),
+    fromnode = case_when(
+      comid == 948010092L ~ 10086520,
+      comid == 948010095L ~ 10013981, # or NA_real_
+      comid == 948010096 ~ 10086523,
+      TRUE ~ fromnode),
+    tonode = case_when(
+      comid == 948010092L ~ 10086523,
+      TRUE ~ tonode))
+  
+```
+
+If we generate an interactive flow network, we can double chack the connections. **Note, the downstream outlet is "`0`".**
+
+```{r simplenetwork, layout="l-page", fig.cap="Little Shasta flow network representation, by COMID."}
+
+library(igraph)
+library(networkD3)
+
+(p <- simpleNetwork(flownet, Source = "comid", Target = "tocomid",
+                   height = "400px", 
+                   width = "400px", 
+                   fontSize = 16, 
+                   fontFamily = "serif",
+                   nodeColour = "darkblue", 
+                   linkColour = "steelblue",
+                   opacity = 0.9, zoom = TRUE, charge = -40))
+```
+
+The network diagram looks correct...however, what about the flow lines? Here we plot by the upstream to downstream sort order. While this flow network is certainly artificial, it will permit use to route catchment data to generate the accumulation data used in the flow models.
+
+```{r plotFlowNetwork, layout="l-page", fig.height=6, fig.cap="Flownet visual inspection for missing nodes."}
+
+# sort and split
+flownet_sort <- get_sorted(flownet, split = TRUE)
+
+# if dendritic and different Terminal groups exist, use split = TRUE:
+# flownet_sort_main <- filter(flownet_sort, terminalID == 3917946)
+
+# add sort_order
+flownet_sort['sort_order'] <- 1:nrow(flownet_sort)
+
+# preview
+mapview(flownet_sort, zcol="sort_order", layer.name="Revised Sorted", legend=F) + 
+  mapview(flownet_sort, zcol="dnhydroseq", layer.name="D/S Hydroseq", legend=F) + 
+  mapview(catch_trim, alpha.regions=0, color="gray", legend =F)
+
+```
+
+Finally, as a final check, we can calculate the `arbolate sum` which is the cumulative total length of all upstream flowlines, for each segment or `COMID`. We would expect to see all the stream segments "flowing" (or getting wider in the plot below) downstream towards the outlet.
+
+```{r arbolatesum, layout="l-page", fig.height=6, fig.cap="Total Length of all upstream segments (cumulative flowlength)."}
+
+# arbolate
+flownet_sort[["arbolatesum"]] <- calculate_arbolate_sum(
+  dplyr::select(flownet_sort,
+                ID = comid, toID = tocomid, length = lengthkm))
+
+
+# plot based on upstream flowpath
+plot(sf::st_geometry(flownet_sort), lwd = flownet_sort$arbolatesum / 10)
+```
+
+## Calculating Accumulation Network
+
+The next step is to take our cleaned network, and use it to calculate the length and drainage areas required in the functional flow models. We will need to use a few different functions here to regenerate the flow lengths and accumulate drainage area.
+
+We can use a modified `{nhdplusTools}` function to get our clean network and calculate distance/drainage area.
+
+First we add the lengths with `nhdplusTools::get_pathlength`, then identify all upstream `COMIDs` for any given comid. Then save!
+
+
+```{r getLengths, eval=T, echo=TRUE}
+# get pathlengths: need ID, toID, length
+flowlines_net <- flownet_sort %>%
+  rename(ID=comid, toID=tocomid) %>%
+  # this updates the pathlength total (main path to basin terminal)
+  left_join(., nhdplusTools::get_pathlength(.)) %>%
+  relocate(pathlength, .after=lengthkm)
+
+```
+
+```{r getPaths, eval=T, echo=TRUE}
+get_us_comids <- function (network, ID, distance = NULL)
+{
+    # drop geometry:
+    if ("sf" %in% class(network))
+      network <- sf::st_set_geometry(network, NULL)
+    # get vector of cols to use
+    netcols_needed <- c("ID", "toID", "lengthkm", "levelpathi","pathlength", "hydroseq","dnhydroseq")
+    # filter to cols
+    if (!sum(names(network) %in% netcols_needed)==length(netcols_needed)){
+      print("Columns missing from network...double check inputs!")
+    }
+    network <- dplyr::select(network, all_of(netcols_needed))
+
+    # fix names
+    names(network) <- tolower(names(network))
+
+    # set the starting ID to search from and search distance in network
+    start_comid <- dplyr::filter(network, id == ID)
+    if (!is.null(distance)) {
+      if (distance < start_comid$lengthkm)
+        return(ID)
+    }
+
+    # function to get the comids
+    private_get_UT <- function(network, ID){
+      # first get the mainstem comids and the trib comids
+      main <- filter(network, id %in% ID)
+      if (length(main$hydroseq) == 1) {
+        full_main <- filter(network, levelpathi %in% main$levelpathi &
+                              hydroseq >= main$hydroseq)
+        trib_lpid <- filter(network, dnhydroseq %in% full_main$hydroseq &
+                              !levelpathi %in% main$levelpathi &
+                              hydroseq >= main$hydroseq)$levelpathi
+      }
+      else {
+        full_main <- filter(network, levelpathi %in% main$levelpathi)
+        trib_lpid <- filter(network, dnhydroseq %in% full_main$hydroseq &
+                              !levelpathi %in% main$levelpathi)$levelpathi
+      }
+      # if trib comid to start, re-run and grab comids associated u/s
+      trib_comid <- filter(network, levelpathi %in% trib_lpid)$id
+      if (length(trib_comid) > 0) {
+        return(c(full_main$id, private_get_UT(network, trib_comid)))
+      }
+      # or just give comids for mainstem
+      else {
+        return(full_main$id)
+      }
+    }
+    # return dat
+    all <- private_get_UT(network, ID)
+
+    # check and sort if distance is set
+    if (!is.null(distance)) {
+      stop_pathlength <- start_comid$pathlength - start_comid$lengthkm +
+        distance
+      network <- filter(network, ID %in% all)
+      return(filter(network, pathlength <= stop_pathlength)$id)
+    }
+    else {
+      return(all)
+    }
+  }
+
+```
+
+```{r applyPaths, eval=F, echo=F}
+
+# make list of us comids for each comid:
+final_comlist <- map(flowlines_net$ID, ~get_us_comids(flowlines_net, .x)) %>% 
+  set_names(flowlines_net$ID)
+
+```
+
+```{r cleanup2, echo=FALSE}
+# cleanup files and save out
+rm(coms_missing, db, final_comids, loi_comids, comid_trim, flownet_sort,
+   comid_nodes, comid_nodes_end, comid_nodes_start, comid_trim_rev, 
+   comidstart, flownet, h12_lsh, miss_catch, nhd_catchments, nhd_flowlines, p)
+
+```
+
+
+## Clean Catchments and Add Area
+
+The last step is to calculate the total watershed area, and weights that can we used for the accumulation. 
+
+```{r addArea, eval=TRUE, echo=TRUE}
+# calc total area:
+lsh_area <- sum(st_area(catch_trim) %>% set_units("km^2"))
+
+# calculate areas and weights
+catch_trim <- catch_trim %>%
+  mutate(
+    areasqkm = units::set_units(st_area(geom),"m^2") %>%
+      # make km2
+      set_units("km^2") %>% drop_units(),
+    # now make a weight by total area
+    area_weight = areasqkm/lsh_area %>%
+      drop_units(), .after=areasqkm) %>%
+  rename(comid=featureid) %>% 
+  # drop these cols:
+  select(-c(shape_length, shape_area))
+
+# calculate total drainage area
+catchment_area <- flowlines_net %>% 
+  # add back in the correct areas to use in the calculation
+  left_join(st_drop_geometry(catch_trim) %>%
+              select(comid, areasqkm), by=c("ID"="comid")) %>%
+  select(ID, toID, area=areasqkm) %>%
+  mutate(totda = calculate_total_drainage_area(.),
+         # add previous calc
+         nhdptotda = flowlines_net$totdasqkm)
+
+# join back to catch_main
+final_catch <- left_join(catch_trim, st_drop_geometry(catchment_area) %>%
+                          select(ID, totda, nhdptotda),
+                        by=c("comid"="ID"))
+
+# now add back to lsh_flownet
+final_flownet <- flowlines_net %>%
+  select(-c( totdasqkm)) %>%
+  left_join(., st_drop_geometry(final_catch),
+            by=c("ID"="comid")) %>%
+  rename(totdasqkm = totda, comid=ID, tocomid=toID) %>%
+  select(-c(id, sourcefc))
+
+```
+
+The total watershed area for the Little Shasta using this iteration is `r lsh_area`. The total drainage area and cumulative drainage area is calculated as well. We can validate with a final map to triple check things.
+
+```{r finalmap, layout="l-page", fig.height=6, fig.cap="Final cleaned watershed."}
+
+mapview(final_flownet, lwd=4, zcol="pathlength") +
+ mapview(final_catch, zcol="totda")
+
+
+```
+
+### Save out
+
+And finally, we save these data out so they can be used in a different pipeline or future work.
+
+
+```{r saveit, eval=F, echo=F}
+
+write_rds(final_comlist, file="data_output/cleaned_full_lshasta_comid_accum_list.rds")
+write_rds(final_flownet, file = "data_output/cleaned_full_lshasta_nhd_flownet.rds")
+write_rds(final_catch, file="data_output/cleaned_full_lshasta_nhd_catchments.rds")
+
+# list(comlist_accum = final_comlist , catchments = final_catch, flowlines = final_flownet))
+```
+
+
+

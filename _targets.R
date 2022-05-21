@@ -80,12 +80,8 @@ list(
                                  startcomid = "3917946")),
                                  #catch_input = "catchments_final_lshasta.rds")),
 
-  ## STEP 4: get flowline comids and accumulation list -------------------
-  # can skip this step now
-  #tar_target(comid_network,
-  #           f_get_comid_network(revised_catchments[["flowlines"]])),
 
-  ## STEP 5: filter NHD science base data to comids of interest ----------
+  ## STEP 4: filter NHD science base data to comids of interest ----------
   tar_target(filter_scibase_comids,
              purrr::map(scibase_filelist$path,
                         ~f_extract_to_comids(.x,
@@ -93,44 +89,45 @@ list(
                                              outdir = "data_output/scibase_nhd")) %>%
                pluck(., 1)),
 
-  ## STEP 6: make krug_runoff csv  -----------------------------------------
+  ## STEP 5: make krug_runoff csv  -----------------------------------------
   tar_target(krug_data,
               f_get_krug_data("data_input/scibase_nhd/krug_runoff_avg_ann_1951-1980.e00",
                               "data_output/nhdplus_vaa.gpkg",
                               revised_catchments[["flowlines"]],
                               "data_output/scibase_nhd/")),
 
-  ## STEP 7: make the seasonal precip/tav/run variables --------------------
+  ## STEP 6: make the seasonal precip/tav/run variables --------------------
   tar_target(met_data,
              f_make_met_data(filter_scibase_comids, "data_output")),
 
 
-  # STEP 8: combine all the data -------------------------------------------
+  # STEP 7: combine all the data -------------------------------------------
   tar_target(cat_ffc_data,
              f_combine_met_cat_data(met_data,
                                     revised_catchments[["catchments"]],
                                     "data_output")),
 
-  # STEP 9: make the accumulated data for comids ---------------------------
+  # STEP 8: make the accumulated data for comids ---------------------------
   tar_target(accum_data,
              f_calc_accum_data(cat_ffc_data,
                                revised_catchments[["comlist_accum"]],
                                xwalk,
                                "data_output")),
 
-  # STEP 10: Run the model: TAKES A LONG TIME -------------
+  # STEP 9: Run the model: TAKES A LONG TIME -------------
 
   ## this step can take a while. Go make coffee/tea.
   ## Defaults to running for ALL metrics, but can specify
-
+  ## if you don't specify a metric(s), defaults to all 24.
+  ## If models run once they shouldn't change and this is skipped.
   tar_target(ffm_mods,
              f_run_ffm_models(accum_data,
                               "data_input/met.csv.zip", xwalk,
-                              # if you don't specify a metric(s), defaults to all 24
+
                               ffm_metrics)),
 
 
-  # STEP 11: Predict FFM from model ----------------------
+  # STEP 10: Predict FFM from model ----------------------
 
   tar_target(ffm_predictions,
              f_make_ffm_predictions(ffm_mods, accum_data,
@@ -138,7 +135,7 @@ list(
                                     ffm_metrics,
                                     "ffm_predictions")),
 
-  # STEP 12: COMBINE DATA IN SUMMARY ----------------------
+  # STEP 11: COMBINE DATA IN SUMMARY ----------------------
   tar_target(ffm_final_summary,
              f_combine_ffm(ffm_predictions,
                            outdir = "data_output/ffm_preds_summary"))

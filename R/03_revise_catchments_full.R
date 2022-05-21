@@ -1,5 +1,4 @@
-# make revised catchment area file
-
+# make revised catchment and flowlines accumulations files
 
 # Libraries ---------------------------------------------------------------
 

@@ -2,16 +2,16 @@
 
 # LIBRARIES ---------------------------------------------------------------
 
-library(tidyverse)
-options(dplyr.summarise.inform = FALSE) # turn off messages
-library(glue) # better pasting of things together
-library(fs) # more stable file paths
-library(purrr)
-library(janitor)
+# library(tidyverse)
+# options(dplyr.summarise.inform = FALSE) # turn off messages
+# library(glue) # better pasting of things together
+# library(fs) # more stable file paths
+# library(purrr)
+# library(janitor)
+#
 
 
-
-f_combine_ffm <- function(filepaths, outdir){
+f_combine_ffm <- function(filepaths, outdir, filename){
 
   #filepaths <- fs::dir_ls(glue("{indir}"), glob = "*.csv")
   filenames <- gsub(path_file(filepaths), pattern = ".csv", replacement = "") %>%
@@ -27,11 +27,11 @@ f_combine_ffm <- function(filepaths, outdir){
 
   # write single file
   fs::dir_create(outdir)
-  write_csv(dat, file = glue("{outdir}/final_ffm_preds_median.csv"))
+  write_csv(dat, file = glue("{outdir}/{filename}_median.csv"))
 
   # save LOI version only, us, to ds
   lois <- c(3917198, 3917950, 3917946)
   dat %>% filter(comid %in% lois) %>%
-    write_csv(., file = glue("{outdir}/final_ffm_preds_lshasta_LOIs_median.csv"))
+    write_csv(., file = glue("{outdir}/{filename}_LOIs_median.csv"))
 
 }

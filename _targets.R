@@ -18,6 +18,7 @@ tar_option_set(
                "rmapshaper","lwgeom"), # packages that your targets need to run
   format = "rds" # default storage format
 )
+options(dplyr.summarise.inform = FALSE)
 
 # Load all functions (or source one by one if needed)
 for (file in list.files("R", full.names = TRUE)) source(file)
@@ -138,7 +139,8 @@ list(
   # STEP 11: COMBINE DATA IN SUMMARY ----------------------
   tar_target(ffm_final_summary,
              f_combine_ffm(ffm_predictions,
-                           outdir = "data_output/ffm_preds_summary"))
+                           outdir = "data_output/ffm_preds_summary",
+                           filename = "final_ffm_preds_lshasta_fullwatershed"))
 
 )
 

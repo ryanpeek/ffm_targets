@@ -20,7 +20,7 @@ f_get_krug_data <- function(inputfile, nhd_data,
 
   # get catchments
   print("load catchment data...")
-  catch_vaa <- sf::st_read(glue("{nhd_data}"), "CatchmentSP", quiet=TRUE) %>%
+  catch_vaa <- sf::st_read(here(glue("{nhd_data}")), "CatchmentSP", quiet=TRUE) %>%
     st_transform(st_crs(krug))
 
   # create a dissolved boundary w rmapshaper
@@ -67,13 +67,13 @@ f_get_krug_data <- function(inputfile, nhd_data,
   # write to data_clean
   #fs::dir_create(here("data_output/nhd_catchdat"))
   write_csv(krug_runoff_csv, file = glue("{outdir}/KRUG_RUNOFF.csv"))
-  print("KRUG_RUNOFF.csv trimmed saved in scibase_nhd")
+  print("KRUG_RUNOFF.csv trimmed & saved in scibase_nhd")
   return(krug_runoff_csv)
 }
 
 # setup vars
 # inputfile <- "data_input/scibase_nhd/krug_runoff_avg_ann_1951-1980.e00"
-# flowlines <- "data_output/nhdplus_vaa.gpkg"
+# flowlines <- "data_output/nhdplus_vaa_full.gpkg"
 # outdir <- "data_output/scibase_nhd/"
 
 

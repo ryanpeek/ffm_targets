@@ -338,13 +338,13 @@ f_revise_catchments_north <- function(indir, outdir,
   #           file=glue("{outdir}/cleaned_full_lshasta_nhd_catchments.rds"))
 
   # need a csv with comid, area, and drain area
-  final_catch %>% st_drop_geometry() %>%
+  final_catch %>% #st_drop_geometry() %>%
     select(comid, areasqkm:nhdptotda) %>%
-    write_csv(file = glue("{outdir}/sf_catch_trimmed_w_areas.csv"))
+    write_rds(file = glue("{outdir}/sf_catch_w_areas_north.rds"))
 
   # save out flowlines cleaned
   final_flownet %>%
-    write_rds(file=glue("{outdir}/sf_flowlines_trimmed_w_areas.rds"))
+    write_rds(file=glue("{outdir}/sf_flowlines_w_areas_north.rds"))
 
   # clean enviro:
   # rm(list = ls()[grep("^catch|^com|flowline|^h|^flownet", ls())])

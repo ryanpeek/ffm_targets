@@ -14,9 +14,10 @@
 
 
 # use to return: make_cat_ffc_data
-f_combine_met_cat_data <- function(metdata, catchment_dat, outdir){
+f_combine_met_cat_data <- function(metdata, catchment_dat, outdir, modelname){
 
-  # metdata <- read_csv(glue("{here('data_output/met_seasonal_metrics.csv')}"))
+  # metdata <- read_csv(glue("{here('data_output/met_seasonal_metrics_{modelname}.csv')}"))
+
   # get the files from the scibase_nhd location
   filelist <- get_zip_list(glue("{outdir}/scibase_nhd/"), extension = "*.csv")
 
@@ -69,8 +70,9 @@ f_combine_met_cat_data <- function(metdata, catchment_dat, outdir){
   # these can all be calculated and added in next script
 
   # export
-  write_csv(cat_ffc_data, file = glue("{outdir}/ffc_combined_metrics_raw.csv"))
-  # write_rds(met_final, file = glue("{outdir}/met_seasonal_metrics.rds"))
+  write_csv(cat_ffc_data, file = glue("{outdir}/ffc_combined_metrics_raw_{modelname}.csv"))
+
+  # write_rds(met_final, file = glue("{outdir}/met_seasonal_metrics_{modelname}.rds"))
   return(cat_ffc_data)
 
 }

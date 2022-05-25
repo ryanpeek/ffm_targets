@@ -11,10 +11,10 @@
 ## list of the comids to filter by
 ## out directory
 
-f_make_met_data <- function(filelist, outdir){
+f_make_met_data <- function(filelist, outdir, modelname){
 
   # check if file exists
-  if(file.exists(glue("{outdir}/met_seasonal_metrics.csv"))){
+  if(file.exists(glue("{outdir}/met_seasonal_metrics_{modelname}.csv"))){
     print("met_seasonal_metrics exists, overwriting...")
   }
   # filelist should be list of trimmed csvs (by)
@@ -148,9 +148,8 @@ f_make_met_data <- function(filelist, outdir){
   # n=105
 
   # export
-  #write_rds(met_final, file = glue("{outdir}/met_seasonal_metrics.rds"))
-  write_csv(met_final, file = glue("{outdir}/met_seasonal_metrics.csv"))
+  #write_rds(met_final, file = glue("{outdir}/met_seasonal_metrics_{modelname}.rds"))
+  write_csv(met_final, file = glue("{outdir}/met_seasonal_metrics_{modelname}.csv"))
 
-  #met_out <- read_csv(glue("{outdir}/met_seasonal_metrics.csv"))
   return(met_final)
 }

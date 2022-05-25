@@ -78,7 +78,7 @@ list(
 
   # can change this function to f_revise_catchments_full for full catch
   # or to f_revise_catchments_north to drop terminal basins in south
-  tar_target(revised_catchments,
+  tar_target(revised_catchments_north,
              f_revise_catchments_north(indir = "data_input",
                                  outdir = "data_output",
                                  startcomid = "3917946")),
@@ -89,34 +89,36 @@ list(
   tar_target(filter_scibase_comids,
              purrr::map(scibase_filelist$path,
                         ~f_extract_to_comids(.x,
-                                             comids = revised_catchments[["flowlines"]]$comid,
+                                             comids = revised_catchments_north[["flowlines"]]$comid,
                                              outdir = "data_output/scibase_nhd")) %>%
                pluck(., 1)),
 
   ## STEP 5: make krug_runoff csv  -----------------------------------------
   tar_target(krug_data,
               f_get_krug_data("data_input/scibase_nhd/krug_runoff_avg_ann_1951-1980.e00",
-                              "data_output/nhdplus_vaa.gpkg",
-                              revised_catchments[["flowlines"]],
+                              "data_output/nhdplus_full_vaa.gpkg",
+                              revised_catchments_north[["flowlines"]],
                               "data_output/scibase_nhd/")),
 
   ## STEP 6: make the seasonal precip/tav/run variables --------------------
   tar_target(met_data,
-             f_make_met_data(filter_scibase_comids, "data_output")),
+             f_make_met_data(filter_scibase_comids, "data_output", "north")),
 
 
   # STEP 7: combine all the data -------------------------------------------
   tar_target(cat_ffc_data,
              f_combine_met_cat_data(met_data,
-                                    revised_catchments[["catchments"]],
-                                    "data_output")),
+                                    revised_catchments_north[["catchments"]],
+                                    "data_output",
+                                    "north")),
 
   # STEP 8: make the accumulated data for comids ---------------------------
   tar_target(accum_data,
              f_calc_accum_data(cat_ffc_data,
-                               revised_catchments[["comlist_accum"]],
+                               revised_catchments_north[["comlist_accum"]],
                                xwalk,
-                               "data_output")),
+                               "data_output",
+                               "north")),
 
   # STEP 9: Run the model: TAKES A LONG TIME -------------
 
@@ -137,13 +139,14 @@ list(
              f_make_ffm_predictions(ffm_mods, accum_data,
                                     xwalk,
                                     ffm_metrics,
-                                    "ffm_predictions")),
+                                    "ffm_predictions",
+                                    "north")),
 
   # STEP 11: COMBINE DATA IN SUMMARY ----------------------
   tar_target(ffm_final_summary,
              f_combine_ffm(ffm_predictions,
                            outdir = "data_output/ffm_preds_summary",
-                           filename = "final_ffm_preds_lshasta_northwatershed"))
+                           filename = "final_ffm_preds_lshasta_north"))
 
 )
 

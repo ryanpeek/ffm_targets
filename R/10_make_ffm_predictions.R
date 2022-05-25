@@ -32,7 +32,7 @@
 ## NON-PEAK, NON-MAG:
 #metrics_nonpeakmag <- c("FA_Tim","FA_Dur","Wet_Tim","Wet_BFL_Dur","SP_Tim","SP_Dur","SP_ROC","DS_Tim","DS_Dur_WS", "Peak_Dur_2","Peak_Fre_2", "Peak_Dur_5","Peak_Fre_5", "Peak_Dur_10","Peak_Fre_10")
 
-f_make_ffm_predictions <- function(rfs_list, accum_data, xwalk, ffm_metrics, outdir){
+f_make_ffm_predictions <- function(rfs_list, accum_data, xwalk, ffm_metrics, outdir, modelname){
 
   if(!length(rfs_list[grepl(paste(ffm_metrics, collapse = "|"), rfs_list)]) == length(ffm_metrics)){
     stop("Missing rf model files...")
@@ -77,7 +77,8 @@ f_make_ffm_predictions <- function(rfs_list, accum_data, xwalk, ffm_metrics, out
     # 1. Make preds ------------------------
     map(dat_split, ~f_run_rf_predictions(metric = curmets[i],
                                          rf = rf_mod,
-                                         comid_data = .x , outdir))
+                                         comid_data = .x , outdir,
+                                         modelname))
 
     # 4. Export files ----------------------
     #f_write_ffm_out(nhd_metrics = nhd, metric = curmets[i])

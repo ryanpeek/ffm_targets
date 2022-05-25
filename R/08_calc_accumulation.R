@@ -4,7 +4,7 @@
 # requires:
 # the cleaned and prepped cat_ffc_data (raw by catchment/comid)
 
-f_calc_accum_data <- function(cat_data, comlist, xwalk, outdir){
+f_calc_accum_data <- function(cat_data, comlist, xwalk, outdir, modelname){
 
   ## AWA -----------------------------------------
   # SUM of value * area weight + value * area weight
@@ -207,7 +207,7 @@ f_calc_accum_data <- function(cat_data, comlist, xwalk, outdir){
     # filter out years 1945-1949
     filter(!wa_yr %in% c(1945:1949))
 
-  write_csv(dat_final2, file = glue("{outdir}/accumulated_raw_metrics.csv"))
+  write_csv(dat_final2, file = glue("{outdir}/accumulated_raw_metrics_{modelname}.csv"))
   return(dat_final2)
 
 }

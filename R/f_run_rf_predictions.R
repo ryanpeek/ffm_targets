@@ -5,7 +5,7 @@
 # Make Predictions From RF Model ------------------------------------------
 
 # requires rf model, and data/csv to make predictions from
-f_run_rf_predictions <- function(metric, rf, comid_data, outdir){
+f_run_rf_predictions <- function(metric, rf, comid_data, outdir, modelname){
 
   library(dplyr)
   options(dplyr.summarise.inform = FALSE) # turn off messages
@@ -51,6 +51,6 @@ f_run_rf_predictions <- function(metric, rf, comid_data, outdir){
   print(glue("Writing out {metric}..."))
   fs::dir_create(glue("data_output/{outdir}"))
   readr::write_csv(ffm_preds_median,
-         file = fs::path(glue("data_output/{outdir}/{metric}_{unique(ffm_preds_median$comid)}.csv")))
+         file = fs::path(glue("data_output/{outdir}/{metric}_{unique(ffm_preds_median$comid)}_{modelname}.csv")))
 
 }

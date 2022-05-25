@@ -168,7 +168,7 @@ In fact, the catchments highlighted in **orange** below are not part of the NHD 
 ```{r plotCatchments, layout="l-page", fig.height=6, fig.cap="Catchments for Little Shasta within HUC12"}
 
 # load data
-db <- here("data_output/lsh_nhdplus_raw_vaa.gpkg")
+db <- here("data_output/nhdplus_full_vaa.gpkg")
 nhd_flowlines <- st_read(db, "NHDFlowline_Network", quiet = TRUE)
 nhd_catchments <- st_read(db, "CatchmentSP", quiet = TRUE)
 

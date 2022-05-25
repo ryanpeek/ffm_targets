@@ -3,23 +3,40 @@
 # Get Libraries -----------------
 
 library(tidyverse)
+library(janitor)
 library(glue)
-
 
 # Get Data ----------------------------------------------------------------
 
-# the original raw data:
-raw <- read_csv("data_input/3917198_accum_raw.csv") %>%
-  mutate(modtype="raw")
+# files w orig data
+inputfiles <- list.files("data_input", pattern = "^3917.")
+file_list <- c(glue("data_input/{inputfiles}"))
+
+# read in
+orig_df <- read_csv(file_list)
+
+# add info
+orig_df <- orig_df %>%
+  mutate(datatype = "orig", .after=comid)
 
 # revised
 rev <- read_csv("data_output/accumulated_raw_metrics_north.csv") %>%
-  filter(comid==3917198) %>%
-  mutate(modtype="revised")
+  filter(comid %in% c(unique(orig_df$comid))) %>%
+  mutate(datatype="revised", .after=comid)
 
-#df_all <- bind_rows(raw, rev)
+# check names and bind:
+names(orig_df)[220:263]
+names(rev)[220:263]
 
-write_csv(rev, "data_output/3917198_accum_revised_north.csv")
+# set names as same in both:
+names(rev) <- names(orig_df)
+compare_df_cols(rev, orig_df)
+
+# bind
+df_all <- bind_rows(orig_df, rev) %>%
+
+
+write_csv(rev, "data_output/accum_comparison.csv")
 
 names(rev)
 

@@ -71,17 +71,18 @@ list(
                         fs::path_ext_remove(xwalk$source_file))),
   # Download once
   tar_target(scibase_filelist,
-             f_download_scibase(scibase_to_download, "data_input/scibase_nhd"),
-             cue = tar_cue("never")),
+             f_download_scibase(scibase_to_download, "data_input/scibase_nhd")),
+             #cue = tar_cue("never")),
 
   ## STEP 3: load nhd flowlines and revise catchments --------------------
 
   # can change this function to f_revise_catchments_full for full catch
   # or to f_revise_catchments_north to drop terminal basins in south
   tar_target(revised_catchments_north,
-             f_revise_catchments_north(indir = "data_input",
+             f_revised_catchments_north(indir = "data_input",
                                  outdir = "data_output",
-                                 startcomid = "3917946")),
+                                 startcomid = "3917946",
+                                 modelname="north")),
                                  #catch_input = "catchments_final_lshasta.rds")),
 
 
@@ -128,13 +129,13 @@ list(
   ## If models run once they shouldn't change and this is skipped.
   tar_target(ffm_mods,
              f_run_ffm_models(accum_data,
-                              "data_input/met.csv.zip", xwalk,
-
+                              "data_input/met.csv.zip",
+                              xwalk,
                               ffm_metrics)),
-
 
   # STEP 10: Predict FFM from model ----------------------
 
+  # this object returns filepaths to each comid/ffm prediction
   tar_target(ffm_predictions,
              f_make_ffm_predictions(ffm_mods, accum_data,
                                     xwalk,

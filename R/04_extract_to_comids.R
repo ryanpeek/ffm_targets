@@ -11,6 +11,10 @@
 ## list of the comids to filter by
 ## out directory
 
+# infile <- scibase_filelist$path
+# comids <- revised_catchments_north[["flowlines"]]$comid
+# outdir <- "data_output/scibase_nhd"
+
 f_extract_to_comids <- function(infile, comids, outdir){
 
   fs::dir_create(outdir)

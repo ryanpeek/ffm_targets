@@ -4,6 +4,12 @@
 # requires:
 # the cleaned and prepped cat_ffc_data (raw by catchment/comid)
 
+# cat_data <- cat_ffc_data
+# comlist <- revised_catchments_north[["comlist_accum"]]
+# xwalk <- walk
+# outdir <- "data_output"
+# modelname="north"
+
 f_calc_accum_data <- function(cat_data, comlist, xwalk, outdir, modelname){
 
   ## AWA -----------------------------------------
@@ -90,7 +96,7 @@ f_calc_accum_data <- function(cat_data, comlist, xwalk, outdir, modelname){
                        ~mean(.x, na.rm=TRUE),
                        .names = "{col}_avg"),
                      across(
-                       .cols = c(area_sf),
+                       .cols = c(area_sf), # this should equal totda from catch data
                        ~sum(.x),
                        .names = "{col}_sum")
                    )

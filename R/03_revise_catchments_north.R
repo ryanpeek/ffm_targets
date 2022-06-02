@@ -16,13 +16,13 @@
 
 # indir <- "data_input"
 # outdir <- "data_output"
-# startcomid: the outlet: "3917946"
 # startcomid <- "3917946"
+# modelname <- "north"
 
 # function ---------
 
-f_revise_catchments_north <- function(indir, outdir,
-                                startcomid){
+f_revised_catchments_north <- function(indir, outdir,
+                                startcomid, modelname){
 
   comidstart <- list(featureSource = "comid",
                      featureID = startcomid)
@@ -287,36 +287,36 @@ f_revise_catchments_north <- function(indir, outdir,
 
   print(glue("calculate total area and weights..."))
 
-  # calc total area:
-  lsh_area <- sum(st_area(catch_trim) %>% set_units("km^2"))
-
-  # calculate areas and weights
-  catch_trim <- catch_trim %>%
-    mutate(
-      areasqkm = units::set_units(st_area(geom),"m^2") %>%
-        # make km2
-        set_units("km^2") %>% drop_units(),
-      # now make a weight by total area
-      area_weight = areasqkm/lsh_area %>%
-        drop_units(), .after=areasqkm) %>%
-    rename(comid=featureid) %>%
-    # drop these cols:
-    select(-c(shape_length, shape_area))
+  # calc total drainage area:
+  # lsh_area <- sum(st_area(catch_trim) %>% set_units("km^2"))
 
   # calculate total drainage area
   catchment_area <- flowlines_net %>%
     # add back in the correct areas to use in the calculation
     left_join(st_drop_geometry(catch_trim) %>%
-                select(comid, areasqkm), by=c("ID"="comid")) %>%
-    select(ID, toID, area=areasqkm) %>%
+                select(comid=featureid, areasqkm), by=c("ID"="comid")) %>%
+    dplyr::select(ID, toID, area=areasqkm) %>%
     mutate(totda = calculate_total_drainage_area(.),
            # add previous calc
-           nhdptotda = flowlines_net$totdasqkm)
+           nhdptotda = flowlines_net$totdasqkm,
+           area_weight = area / totda)
+
+  # # calculate areas and weights
+  # catch_trim <- catch_trim %>%
+  #   mutate(
+  #     areasqkm = units::set_units(st_area(geom),"m^2") %>%
+  #       # make km2
+  #       set_units("km^2") %>% drop_units()) %>%
+  #   rename(comid=featureid) %>%
+  #   # drop these cols:
+  #   select(-c(shape_length, shape_area))
 
   # join back to catch_main
-  final_catch <- left_join(catch_trim, st_drop_geometry(catchment_area) %>%
-                             select(ID, totda, nhdptotda),
-                           by=c("comid"="ID"))
+  final_catch <- left_join(catch_trim %>% select(-c(shape_length, shape_area)),
+                           st_drop_geometry(catchment_area) %>%
+                             select(ID, area, area_weight, totda, nhdptotda),
+                           by=c("featureid"="ID")) %>%
+    rename(comid=featureid)
 
   # now add back to lsh_flownet
   final_flownet <- flowlines_net %>%
@@ -340,11 +340,11 @@ f_revise_catchments_north <- function(indir, outdir,
   # need a csv with comid, area, and drain area
   final_catch %>% #st_drop_geometry() %>%
     select(comid, areasqkm:nhdptotda) %>%
-    write_rds(file = glue("{outdir}/sf_catch_w_areas_north.rds"))
+    write_rds(file = glue("{outdir}/sf_catch_w_areas_{modelname}.rds"))
 
   # save out flowlines cleaned
   final_flownet %>%
-    write_rds(file=glue("{outdir}/sf_flowlines_w_areas_north.rds"))
+    write_rds(file=glue("{outdir}/sf_flowlines_w_areas_{modelname}.rds"))
 
   # clean enviro:
   # rm(list = ls()[grep("^catch|^com|flowline|^h|^flownet", ls())])

@@ -8,7 +8,11 @@
 # library(fs) # more stable file paths
 # library(purrr)
 # library(janitor)
-#
+
+# requires
+# filepaths <- ffm_predictions
+# outdir = "data_output/ffm_preds_summary"
+# filename = "final_ffm_preds_lshasta_north"
 
 
 f_combine_ffm <- function(filepaths, outdir, filename){
@@ -22,7 +26,8 @@ f_combine_ffm <- function(filepaths, outdir, filename){
   stopifnot(length(filenames)==length(filepaths))  # must be same
 
   # read in data and add column of metric names
-  dat <- map2_df(filepaths, filenames, ~read_csv(.x) %>% mutate(metric = .y)) %>%
+  dat <- map2_df(filepaths, filenames, ~read_csv(.x) %>%
+                   mutate(metric = .y)) %>%
     arrange(comid)
 
   # write single file

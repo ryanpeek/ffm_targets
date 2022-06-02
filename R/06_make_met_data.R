@@ -11,6 +11,10 @@
 ## list of the comids to filter by
 ## out directory
 
+# filelist <- filter_scibase_comids # tar_load(filter_scibase_comids)
+# outdir <- "data_output"
+# modelname <- "north"
+
 f_make_met_data <- function(filelist, outdir, modelname){
 
   # check if file exists

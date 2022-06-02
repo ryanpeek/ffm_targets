@@ -8,9 +8,10 @@
 
 # requires:
 ## filtered files with a COMID column
-## metclim data output
-## updated catchment areas and weights
-## outdir
+# metdata <- met_data
+# catchment_dat <- revised_catchments_north[["catchments"]]
+# outdir <- "data_output",
+# modelname <- "north"
 
 
 # use to return: make_cat_ffc_data
@@ -59,8 +60,8 @@ f_combine_met_cat_data <- function(metdata, catchment_dat, outdir, modelname){
            "cat_et","cat_pet", "cat_rh", "cat_wtdep", "tot_wtdep",
            "cat_tav7100_ann", "cat_ppt7100_ann",
            "cat_minp6190", "cat_maxp6190") %>%
-    left_join(catchment_dat %>% dplyr::select(comid, areasqkm, totda, area_weight), by="comid") %>%
-    select(comid, totda, area_weight, comid_wy:cat_maxp6190, area_sf=areasqkm)
+    left_join(catchment_dat %>% dplyr::select(comid, area, totda, area_weight), by="comid") %>%
+    select(comid, totda, area_weight, comid_wy:cat_maxp6190, area_sf=area)
 
   #names(cat_ffc_data) %>% as_tibble() %>% View(title = "finnames2")
 

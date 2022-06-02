@@ -37,7 +37,7 @@ df_all <- bind_rows(orig_df, rev) %>%
   arrange(comid, wa_yr)
 
 # write out
-write_csv(df_all, "data_output/accum_comparison_north.csv")
+write_csv(df_all, "data_output/accum_comparison_north_v2.csv")
 
 
 # Compare all Years One Metric --------------------------------------------

@@ -10,6 +10,12 @@
 # library(rmapshaper)
 # library(lwgeom)
 
+
+# inputfile <- "data_input/scibase_nhd/krug_runoff_avg_ann_1951-1980.e00"
+# nhd_data <- "data_output/nhdplus_full_vaa.gpkg"
+# target_input <- revised_catchments_north[["flowlines"]]
+# outdir <- "data_output/scibase_nhd/"
+
 # function
 f_get_krug_data <- function(inputfile, nhd_data,
                             target_input, outdir){

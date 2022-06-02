@@ -4,6 +4,15 @@
 
 # Make Predictions From RF Model ------------------------------------------
 
+# metric <- the metric of choice
+# rf <- # a specific corresponding ffm rf model
+# comid_data <- specific accum data for a comid
+# xwalk <- xwalk
+# metric <- ffm_metric
+# outdir <- "ffm_predictions"
+# modelname <- "north"
+
+
 # requires rf model, and data/csv to make predictions from
 f_run_rf_predictions <- function(metric, rf, comid_data, outdir, modelname){
 
@@ -25,6 +34,7 @@ f_run_rf_predictions <- function(metric, rf, comid_data, outdir, modelname){
   predp75<-apply(preds$individual,1,function(x) quantile(x,probs=0.75))
   predp90<-apply(preds$individual,1,function(x) quantile(x,probs=0.9))
 
+  # clean and scale
   ffm_preds <- data.frame(
     metric = metric,
     comid = comid_data$COMID,
@@ -34,8 +44,8 @@ f_run_rf_predictions <- function(metric, rf, comid_data, outdir, modelname){
     p75 = predp75, p90 = predp90)
 
   if(metric %in% metrics_mag){
-    print("magnitude metric identified...scaling by drainage area.")
-    # scale predictions to cfs
+    print("magnitude metric identified...scaling by cumulative drainage area for catchment.")
+    # scale predictions to cfs by drainage area
     ffm_preds$p10 <- ffm_preds$area * ffm_preds$p10
     ffm_preds$p25 <- ffm_preds$area * ffm_preds$p25
     ffm_preds$p50 <- ffm_preds$area * ffm_preds$p50
@@ -45,7 +55,7 @@ f_run_rf_predictions <- function(metric, rf, comid_data, outdir, modelname){
 
   # summarize by median across all years
   ffm_preds_median <- ffm_preds %>%
-    group_by(comid, metric, area) %>%
+    group_by(comid, metric) %>%
     summarize(across(.cols = c(p10, p25, p50, p75, p90), median, na.rm=TRUE))
   # write to temp directory to storing output
   print(glue("Writing out {metric}..."))

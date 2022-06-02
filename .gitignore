@@ -5,7 +5,7 @@
 .DS_Store
 _targets
 data_input/scibase_nhd/
-data_output/scibase_nhd/
+data_output/scibase_nhd/*
 data_output/ffm_models/*rds
 data_output/ffm_predictions/*csv
 figures/*html

@@ -8,7 +8,7 @@ date: "`r Sys.Date()`"
 output: 
   distill::distill_article:
     toc: true
-    code_folding: true
+    code_folding: false
 editor_options: 
   chunk_output_type: console
 ---
@@ -82,7 +82,19 @@ knitr::include_graphics(here("figures/raw_nhd_watershed_map.png"))
 
 ## Watershed HUC12 Units
 
-Watersheds can be delineated using the HUC codes, with a lower HUC designating a larger watershed. These HUCs are nested, and should ostensibly match with the flowline and basin data that is pulled via the NHD dataset. If we pull the HUC8 and HUC12s associated with the Little Shasta River, (`1801020703`), we can see that these data don't overlap very cleanly.
+The Hydrologic Unit Code or HUC^[see [here for data](https://databasin.org/maps/8df84d8ed5f34cac8d1f54d5c97fdd77/) ] are hierarchically nested watershed units that can be used for a variety of analyses. The lower the HUC number (i.e., HUC4), the larger the watershed unit. The finest scale HUC (smallest watershed unit) is HUC12, and the largest is HUC2.
+
+```{r, echo=FALSE, fig.cap='HUC Hydrologic Boundary Dataset, figure from USGS'}
+
+include_graphics("https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/thumbnails/image/WBD_Base_HUStructure_small.png")
+
+# from https://www.usgs.gov/media/images/watershed-boundary-dataset-structure-visualization
+
+```
+
+Watersheds can be delineated using the HUC codes, with a lower HUC designating a larger watershed. These HUCs are nested, and should ostensibly match with the flowline and basin data that is pulled via the NHD dataset. 
+
+If we pull the HUC8 and HUC12s associated with the Little Shasta River, (`1801020703`), we can see that these data don't overlap very cleanly.
 
 ```{r huc12, layout="l-page", fig.cap="HUC8 in black, HUC12 in blue, and NHD catchment in orange"}
 
@@ -213,22 +225,49 @@ rm(flowlines, flowline_huc, flowlines_huc, flowlines_trim,
 
 ## Selecting Catchments
 
-The first step is to identify the streamlines that flow to the mainstem Little Shasta, remove any all canals, and select and re-route the network to match this cleaned network. While not correct from a streamflow standpoint, this allows us to use the catchments we need to create a stream network.
+The first step is to identify the streamlines that flow to the mainstem Little Shasta, remove any all canals, and select and re-route the network to match this cleaned network. While not correct from a streamflow standpoint, this allows us to use the catchments we need to create a stream network. We also have removed the springs and flowlines from the southern portion of the Little Shasta watershed that don't have surface flow connections to the mainstem Little Shasta River.
 
 ```{r trimcanals}
 
+# get catch/flow VAA
+# db <- here(glue("{outdir}/nhdplus_full_vaa.gpkg"))
+# nhd_flowlines <- st_read(db, "NHDFlowline_Network", quiet = TRUE)
+# nhd_catchments <- st_read(db, "CatchmentSP", quiet = TRUE)
+
+# Filter CANALS and Segments that we need
 comid_trim <- nhd_flowlines %>%
-  filter(fcode %in% c(46006, 46003)) %>% 
+  filter(fcode %in% c(46006, 46003)) %>%
   # add these connectors back in
-  bind_rows(., nhd_flowlines %>% 
-              filter(comid %in% 
+  bind_rows(., nhd_flowlines %>%
+              filter(comid %in%
                        # canals
                        c(948010091, 948010089, 948010092,3917222,
                          3917226, 3917270, 3917952, 3917266,
                          948010095, 948010096)))
 
+# get Catchments that match
 catch_trim <- nhd_catchments %>%
   filter(featureid %in% comid_trim$comid)
+
+# TRIM SOUTHERN LOBE OUT -------------
+
+h12_lsh <- st_transform(h12_lsh, 4269)
+# drop H12: 180102070302
+comid_to_trim <- comid_trim[h12_lsh[h12_lsh$huc12=="180102070302",],]$comid
+
+# drop these because we want to keep
+comid_to_trim <- comid_to_trim[!grepl("3917266|3917222", x = comid_to_trim)]
+# add these: 3917218, 3917212, 3917214, 3917228 b/c we want to drop
+comid_to_trim <- c(comid_to_trim, 3917218, 3917212, 3917214, 3917228)
+
+# check
+# mapview(comid_trim %>% filter(!comid %in% comid_to_trim), color="red") +
+#   mapview(catch_trim %>% filter(!featureid %in% comid_to_trim), alpha.regions=0, color="gray", lwd=3)
+
+# trim (n=45 after)
+catch_trim <- catch_trim %>% filter(!featureid %in% comid_to_trim)
+comid_trim <- comid_trim %>% filter(!comid %in% comid_to_trim)
+
 
 # get nodes (or use nhdtoolsPlus::get_nodes)
 comid_nodes <- 
@@ -268,7 +307,7 @@ mapview(comid_nodes_start,
           zcol="fromnode", legend=FALSE) +
   mapview(comid_trim %>% 
             select(comid, fromnode, tonode, hydroseq, dnhydroseq) %>% 
-            filter(comid %in% c("948010095", "948010096", "948010092")), 
+            filter(comid %in% c("948010095", "948010096", "948010092", "3917222")), 
           color="red", layer.name="Need to Fix") +
   mapview(catch_trim, alpha.regions=0, color="gray")
 
@@ -281,7 +320,7 @@ We next need to clean and revise the nodes and comids associated with stream seg
 ```{r edit-comids}
 
 # edit comids and nodes:
-comid_trim_rev <- comid_trim %>% 
+comid_trim_rev <- comid_trim %>%
   select(-c(id, fdate:gnis_name, reachcode:wbareacomi, shape_length, frommeas:areasqkm, divdasqkm:enabled)) %>%
   mutate(
     # the start node
@@ -293,8 +332,9 @@ comid_trim_rev <- comid_trim %>%
     # end node
     tonode = case_when(
       comid == 948010095 ~ 10086523,
-      comid == 948010096 ~ 10014067, 
+      comid == 948010096 ~ 10014067,
       comid == 948010092 ~ 10014066,
+      comid == 3917222 ~ 10014066,
       TRUE ~ tonode),
     # dnhydroseq
     dnhydroseq = case_when(
@@ -303,6 +343,7 @@ comid_trim_rev <- comid_trim %>%
       comid == 948010096 ~ 10021351,
       comid == 948010046 ~ 10020959,
       comid == 948010092 ~ 10032346,
+      comid == 3917222 ~ 10032346,
       TRUE ~ dnhydroseq),
     # uphydroseq
     uphydroseq = case_when(
@@ -314,8 +355,8 @@ comid_trim_rev <- comid_trim %>%
       TRUE ~ uphydroseq))
 
 # now make cleaned flownet
-flownet <- get_tocomid(comid_trim_rev, return_dendritic = TRUE, missing = 0, add = TRUE) %>% 
-  select(comid, tocomid, fromnode, tonode, hydroseq, dnhydroseq, ftype, fcode, lengthkm, levelpathi, totdasqkm, terminalfl, startflag, terminalpa, divergence) %>% 
+flownet <- get_tocomid(comid_trim_rev, return_dendritic = TRUE, missing = 0, add = TRUE) %>%
+  select(comid, tocomid, fromnode, tonode, hydroseq, dnhydroseq, ftype, fcode, lengthkm, levelpathi, totdasqkm, terminalfl, startflag, terminalpa, divergence) %>%
   mutate(
     tocomid = case_when(
       comid == 948010095L ~ 948010096L,
@@ -330,7 +371,8 @@ flownet <- get_tocomid(comid_trim_rev, return_dendritic = TRUE, missing = 0, add
     tonode = case_when(
       comid == 948010092L ~ 10086523,
       TRUE ~ tonode))
-  
+
+
 ```
 
 If we generate an interactive flow network, we can double chack the connections. **Note, the downstream outlet is "`0`".**
@@ -356,12 +398,12 @@ The network diagram looks correct...however, what about the flow lines? Here we 
 
 # sort and split
 flownet_sort <- get_sorted(flownet, split = TRUE)
-
 # if dendritic and different Terminal groups exist, use split = TRUE:
 # flownet_sort_main <- filter(flownet_sort, terminalID == 3917946)
 
 # add sort_order
 flownet_sort['sort_order'] <- 1:nrow(flownet_sort)
+
 
 # preview
 mapview(flownet_sort, zcol="sort_order", layer.name="Revised Sorted", legend=F) + 
@@ -370,15 +412,14 @@ mapview(flownet_sort, zcol="sort_order", layer.name="Revised Sorted", legend=F) 
 
 ```
 
-Finally, as a final check, we can calculate the `arbolate sum` which is the cumulative total length of all upstream flowlines, for each segment or `COMID`. We would expect to see all the stream segments "flowing" (or getting wider in the plot below) downstream towards the outlet.
+Finally, as a final check, we can calculate the `arbolate sum` which is the cumulative total length of all upstream flowlines, for each segment or `COMID`. The `nhdplusTools::calculate_arbolate_sum()` function will calculate this information for us based on the corrected flowlines. We would expect to see all the stream segments "flowing" (or getting wider in the plot below) downstream towards the outlet.
 
 ```{r arbolatesum, layout="l-page", fig.height=6, fig.cap="Total Length of all upstream segments (cumulative flowlength)."}
 
-# arbolate
+# get path arbolate 
 flownet_sort[["arbolatesum"]] <- calculate_arbolate_sum(
   dplyr::select(flownet_sort,
                 ID = comid, toID = tocomid, length = lengthkm))
-
 
 # plot based on upstream flowpath
 plot(sf::st_geometry(flownet_sort), lwd = flownet_sort$arbolatesum / 10)
@@ -394,6 +435,7 @@ First we add the lengths with `nhdplusTools::get_pathlength`, then identify all 
 
 
 ```{r getLengths, eval=T, echo=TRUE}
+
 # get pathlengths: need ID, toID, length
 flowlines_net <- flownet_sort %>%
   rename(ID=comid, toID=tocomid) %>%
@@ -489,39 +531,35 @@ rm(coms_missing, db, final_comids, loi_comids, comid_trim, flownet_sort,
 
 ## Clean Catchments and Add Area
 
-The last step is to calculate the total watershed area, and weights that can we used for the accumulation. 
+The last step is to calculate the weighted area in relation to the total drainage area, for use in the final accumulation and flow predictions. The table below shows the **`COMID`** and **`toCOMID`** attributes, as well as the length and total length (**`pathlength`**) of a given stream segment. The **`area_weight`** is the scaled area to drainage area weight assigned to each catchment **`COMID`**. The **`totdasqkm`** is the revised cumulative drainage area for each catchment, and the **`nhdptotda`** is the previous total drainage area before the watershed was revised and cleaned.
 
-```{r addArea, eval=TRUE, echo=TRUE}
+```{r addArea, eval=TRUE, echo=FALSE}
 # calc total area:
 lsh_area <- sum(st_area(catch_trim) %>% set_units("km^2"))
 
-# calculate areas and weights
-catch_trim <- catch_trim %>%
-  mutate(
-    areasqkm = units::set_units(st_area(geom),"m^2") %>%
-      # make km2
-      set_units("km^2") %>% drop_units(),
-    # now make a weight by total area
-    area_weight = areasqkm/lsh_area %>%
-      drop_units(), .after=areasqkm) %>%
-  rename(comid=featureid) %>% 
-  # drop these cols:
-  select(-c(shape_length, shape_area))
-
-# calculate total drainage area
-catchment_area <- flowlines_net %>% 
+# calculate total drainage area and weigth
+catchment_area <- flowlines_net %>%
   # add back in the correct areas to use in the calculation
   left_join(st_drop_geometry(catch_trim) %>%
-              select(comid, areasqkm), by=c("ID"="comid")) %>%
-  select(ID, toID, area=areasqkm) %>%
+              select(comid=featureid, areasqkm), by=c("ID"="comid")) %>%
+  dplyr::select(ID, toID, area=areasqkm) %>%
   mutate(totda = calculate_total_drainage_area(.),
-         # add previous calc
-         nhdptotda = flowlines_net$totdasqkm)
+         # add previous calc for total drainage area
+         nhdptotda = flowlines_net$totdasqkm,
+         # add an area weight for accumulation
+         area_weight = area / totda) 
+# to calc area from catchments can use this if needed
+#mutate(area = units::set_units(st_area(geom),"m^2") %>%
+# make km2
+#    set_units("km^2") %>% drop_units(),)
+
 
 # join back to catch_main
-final_catch <- left_join(catch_trim, st_drop_geometry(catchment_area) %>%
-                          select(ID, totda, nhdptotda),
-                        by=c("comid"="ID"))
+final_catch <- left_join(catch_trim %>% select(-c(shape_length, shape_area)),
+                         st_drop_geometry(catchment_area) %>%
+                           select(ID, area, area_weight, totda, nhdptotda),
+                         by=c("featureid"="ID")) %>%
+  rename(comid=featureid)
 
 # now add back to lsh_flownet
 final_flownet <- flowlines_net %>%
@@ -531,22 +569,26 @@ final_flownet <- flowlines_net %>%
   rename(totdasqkm = totda, comid=ID, tocomid=toID) %>%
   select(-c(id, sourcefc))
 
+final_flownet %>% st_drop_geometry() %>% 
+  select(comid, tocomid, ftype, lengthkm, pathlength, 
+         sort_order, area_weight:nhdptotda ) %>% 
+  DT::datatable()
 ```
 
-The total watershed area for the Little Shasta using this iteration is `r lsh_area`. The total drainage area and cumulative drainage area is calculated as well. We can validate with a final map to triple check things.
+The total watershed area for the Little Shasta using this iteration is `r lsh_area`. The total drainage area and cumulative drainage area is calculated as well. We can validate with a final map to triple check things. Area weights for headwaters should be equal to `1`, since cumulative drainage area is equivalent to the catchment area.
 
 ```{r finalmap, layout="l-page", fig.height=6, fig.cap="Final cleaned watershed."}
 
-mapview(final_flownet, lwd=4, zcol="pathlength") +
- mapview(final_catch, zcol="totda")
+mapview(final_flownet, lwd=4, zcol="pathlength", 
+        layer.name="Flowline Path Length") +
+  mapview(final_catch, zcol="totda", layer.name="Tot. Drainage Area") +
+  mapview(final_catch, zcol="area_weight", layer.name="Area Weight")
 
 
 ```
 
-### Save out
 
-And finally, we save these data out so they can be used in a different pipeline or future work.
-
+We save these data out to use in the next steps of the pipeline, primarily the accumulation of raw catchment attributes like precipitation, temperature, etc.
 
 ```{r saveit, eval=F, echo=F}
 

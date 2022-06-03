@@ -40,9 +40,6 @@ lois <- lsh_flowlines %>%
 # change to include full delineation RMd or not
 FULL_MODE <- TRUE
 
-# or try this:```{r, echo=FALSE, results='asis'}
-#res <- knitr::knit_child('child.Rmd', quiet = TRUE)
-#cat(res, sep = '\n')
 # https://bookdown.org/yihui/rmarkdown-cookbook/child-document.html
 
 ```
@@ -97,7 +94,7 @@ knitr::include_graphics(here("figures/tmap_lshasta.png"))
 ```
 
 
-```{r, child=if(FULL_MODE) 'lshasta_catchment_delineation.Rmd'}
+```{r, child=if(FULL_MODE) 'appendix01_catchment_delineation.Rmd'}
 ```
 
 # Creating an Accumulation Network

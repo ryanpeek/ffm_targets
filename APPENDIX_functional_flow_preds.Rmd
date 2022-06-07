@@ -97,61 +97,21 @@ knitr::include_graphics(here("figures/tmap_lshasta.png"))
 ```{r, child=if(FULL_MODE) 'appendix01_catchment_delineation.Rmd'}
 ```
 
-# Creating an Accumulation Network
+# Download Catchment Attributes
 
-Now that we have a re-delineated catchment map, we still need to create a clean flowline/catchment network that can be used to run accumulation code on our watershed variables. We also need to update the drainage areas and make sure we have accurately reflected each catchment and COMID before we can have an accurate accumulation network.
+With the cleaned flowline network and catchment map, we can proceed with downloading catchment attributes to be used in the flow models. These data were downloaded from ScienceBase, "Select Attributes for NHDPlus Version 2.1 Reach Catchments and Modified Network Routed Upstream Watersheds for the Conterminous United States" (Wieczorek, Jackson and Schwarz, 2018, https://doi.org/10.5066/P9PA63SM).
 
-Here we will use **only** catchments that contain existing flow lines, to simplify the process and predictions. When or if it is necessary, we can go back and add additional catchments in. There are `r nrow(catch_clean)` catchments and NHD segments that intersect in the HUC10 boundary of the Little Shasta.
+ - [NHD Flowline Routing](https://www.sciencebase.gov/catalog/item/5b92790be4b0702d0e809fe5)
+ - [Select Attributes](https://www.sciencebase.gov/catalog/item/5669a79ee4b08895842a1d47)
+ - [Climate and Water Balance Attributes](https://www.sciencebase.gov/catalog/item/566f6c76e4b09cfe53ca77fe)
+ - [Krug Average Annual Runoff](https://water.usgs.gov/GIS/metadata/usgswrd/XML/runoff.xml) (and [zipped data file](https://water.usgs.gov/GIS/dsdl/runoff.e00.zip))
 
-Here we show how to recalculate the catchment area and total drainage area.
 
-```{r catchArea, echo=FALSE, eval=FALSE, layout="l-body-outset"}
+## Accumulation for each `COMID` and covariate
 
-# need to recalculate totdasqkm (TotDASqKM)
-library(nhdplusTools)
+Accumulation of the catchment variables or covariates was done using variable appropriate calculations. Primarily this was an area weighted average, calculated as the area of a given COMID catchment, divided by the total accumulated drainage area for that catchment. So the sum of `variable * [(local_catch_area) / (drain_area)]`. Thus for headwater catchments, the area weight should equal **`1`**. 
 
-# then add in the comid routing (from catch_clean)
-catch_vaa <- left_join(catch_vaa, 
-                           st_drop_geometry(catch_clean) %>%
-                             select(featureid=FEATUREID,
-                                    comid_riv=comid, upper)) %>% 
-  mutate(upper = ifelse(is.na(upper), FALSE, upper))  
-  ## if need to calc area again:
-  # st_transform(., 3310) %>% 
-  # mutate(area_rev = st_area(geom) %>% set_units("km^2") %>% drop_units(), .after=areasqkm)
-
-# prep data and then run accumulation for catchment area
-catchment_area <- prepare_nhdplus(nhd_vaa, 0, 0,
-                                  purge_non_dendritic = FALSE, warn = FALSE) %>%
-  # add back in the correct areas to use in the calculation
-  left_join(st_drop_geometry(catch_vaa) %>% 
-              select(featureid, area_rev=areasqkm), by=c("COMID"="featureid")) %>% 
-  select(ID = COMID, toID = toCOMID, area=area_rev)
-
-# calc total drainage area
-catchment_area <- catchment_area %>% 
-  mutate(totda = calculate_total_drainage_area(.),
-         # add previous calc
-         nhdptotda = nhd_vaa$totdasqkm)
-
-# now add back to lsh_flownet
-flownet <- left_join(flownet, catchment_area,
-                           by=c("comid"="ID"))
-# preview table
-flownet %>% st_drop_geometry() %>% 
-  select(comid:ftype, areasqkm, lengthkm, sort_order, arbolatesum, totda) %>% 
-  kable()  
-
-```
-
-## Accumulation Data
-
-We previously pulled data required for the accumulation ([here](https://github.com/ryanpeek/ffm_accumulation)) variables used in the FF models. 
-
-We calculate this based on an area weighted average, which is the area of a given COMID catchment, divided by the total watershed area. So the sum of `variable * [(local_catch_area) / (total_watershed_da)]`. In this case the area weight is the local catchment area divided by the total watershed area.
-
-The original data and crosswalked information is in this [file on github](https://github.com/ryanpeek/ffm_accumulation/blob/main/data_clean/08_accumulated_final_xwalk.csv). There are approximately 250+ variables in this dataset. We need to join all these variables to the updated network and catchment areas.
-
+The original data and crosswalked information is in this [file on github](https://github.com/ryanpeek/ffm_accumulation/blob/main/data_clean/08_accumulated_final_xwalk.csv). There are over 250+ variables in the dataset used for the accumulation. We need to join all these variables to the updated network and catchment areas.
 
 ## Calculate Accumulation
 
@@ -187,25 +147,7 @@ cat_df_awa <- catch_dat %>%
 
 Now do the accumulation. Here we pass the list of comids for each comid to a loop/`purrr::map` call to calculate each variable of interest that needs an area weighted average.
 
-## Combine Accumulation Data and Export
 
-Finally we have a set of accumulated catchment variables associated with our comids which can be exported for the modeling!
-
-```{r exporAccum, echo=TRUE, eval=FALSE}
-
-# Write Out ---------------------------------------------------------------
-write_csv(dat_final2, file = here("data_output/lsh_catch_accumulated_metrics.csv"))
-
-```
-
-# Get ScienceBase Catchment Data
-
-The flow models are based on reference models that used catchment accumulated data from ScienceBase: "Select Attributes for NHDPlus Version 2.1 Reach Catchments and Modified Network Routed Upstream Watersheds for the Conterminous United States" (Wieczorek, Jackson and Schwarz, 2018, https://doi.org/10.5066/P9PA63SM).
-
- - [NHD Flowline Routing](https://www.sciencebase.gov/catalog/item/5b92790be4b0702d0e809fe5)
- - [Select Attributes](https://www.sciencebase.gov/catalog/item/5669a79ee4b08895842a1d47)
- - [Climate and Water Balance Attributes](https://www.sciencebase.gov/catalog/item/566f6c76e4b09cfe53ca77fe)
- - [Krug Average Annual Runoff](https://water.usgs.gov/GIS/metadata/usgswrd/XML/runoff.xml) (and [zipped data file](https://water.usgs.gov/GIS/dsdl/runoff.e00.zip))
 
 <!--
 ## Test Approach
@@ -215,127 +157,3 @@ Try using a known reference reach, pull the data and regenerate the accumulation
  - Hat Creek: (COMID: 7952754, gage T11355500)
  - Upper Sacramento: (COMID: 7964867 (T11341400)
 -->
-
-## Using SciBase/NHDTools
-
-Some code exists to download and prep these data (by COMID), *if* we have a DOI available.
-
-```{r sbInfo, eval=FALSE, echo=TRUE}
-# ScienceBase tools
-# tutorial here: https://owi.usgs.gov/R/training-curriculum/usgs-packages/sbtools-discovery/
-
-library(sbtools)
-library(glue)
-library(fs)
-library(xml2)
-options(tidyverse.quiet = TRUE)
-library(tidyverse)
-options(scipen = 100)
-
-# query using DOI
-# Select Attributes: https://doi.org/10.5066/F7765D7V.
-doi_info <- query_sb_doi('10.5066/F7765D7V', limit = 5000)
-(id_item <- doi_info[[1]]$id) # item ID: 5669a79ee4b08895842a1d47
-
-# get parent item
-(id_parent <- item_get_parent(id_item))
-
-# Inspect all the pieces ("children"): "566f6c76e4b09cfe53ca77fe"
-children <- item_list_children(id_item, limit = 1000)
-
-# view all the children titles
-titles <- sapply(children, function(child) child$title)
-kable(titles)
-
-```
-
-Once we have the file pieces, we can use this information to download the data.
-
-```{r doiDownloadlist, echo=TRUE, eval=FALSE}
-
-id_item <- "5669a79ee4b08895842a1d47"
-# get info for item:
-# id_item_get <- item_get(id_item)
-# names(id_item_get)
-
-# get list of just the main files (recursive = FALSE)
-main_files <- item_list_files(id_item, recursive = FALSE)
-main_files <- main_files %>% 
-  mutate(size_mb = size * 1e-6, .after=size)
-main_files %>% select(1:3)
-
-# list all files (takes a min)
-all_files <- item_list_files(id_item,recursive = TRUE)
-all_files <- all_files %>%
-  mutate(size_mb = size * 1e-6, .after=size)
-dim(all_files) # 1412 files!
-
-all_files %>% select(1:3) %>% arrange(desc(size_mb)) %>% head(n=10)
-write_rds(all_files, file = here("data_input/sb_file_list_doi_10.5066_F7765D7V.rds"))
-
-```
-
-To actually download we'll need a significant amount of disk space and time (plus a good internet connection). Here we prepare some directories and download the data. 
-
-```{r doiDownload, echo=TRUE, eval=FALSE}
-
-all_files <- read_rds(here("data_input/sb_file_list_doi_10.5066_F7765D7V.rds"))
-
-# download dir
-dl_dir <- "data_input/scibase_nhd"
-
-# clean dir
-if (fs::dir_exists(here(dl_dir))) {
-  glue::glue("Directory {here(dl_dir)} exists!")
-  } else {
-    fs::dir_create(here(dl_dir))
-    glue::glue("Directory {dl_dir} created")
-  }
-  
-# now download (this can take awhile)
-# not including the nhd xml and node files (see all_files): 11:04
-map2(all_files$url[6:nrow(all_files)], all_files$fname[6:nrow(all_files)], ~possibly(download.file(.x, glue("{here(dl_dir)}/{.y}")), otherwise = print("bad url"))
-
-
-# Now Aggegrate -----------------------------------------------------------
-
-source("R/functions/f_functions.R")
-source("R/functions/f_extract_filter_to_comids_single.R")
-
-# get coms
-comids <- read_rds("data_clean/comid_list.rds")
-subdir <- "data_raw/scibase_flow/"
-outdir <- "data_clean/scibase_flow"
-
-# tst
-file_list <- get_zip_list(glue("{subdir}"), "*zip", recurse = FALSE)
-
-# extract
-#f_extract_filter_to_comids(subdir = data_dir, comids = coms, outdir = "data_clean/flow_nhd_v2", recurse = FALSE)
-
-alldat <- map(file_list$path,
-    ~f_extract_filter_to_comids(.x, comids = comids,
-                                outdir = outdir))
-
-# check dimensions (one way to filter out zeros)
-map(alldat, ~nrow(.x)>0) # all items have >0 rows if TRUE
-
-# Drop Zero Data --------------------------------------------------------------
-
-# drop data with zero rows
-alldat <- discard(alldat, ~nrow(.x)==0)
-
-# Save into one file ------------------------------------------------------
-
-alldat_combine <- alldat %>%
-  reduce(left_join, by = c("COMID")) %>% # join by COMID
-  # drop dup columns
-  select(-c(ends_with(".x"), contains("NODATA"), starts_with("source")))
-
-# write out
-write_csv(alldat_combine, file = glue("{outdir}/scibase_data_merged_by_comids.csv"))
-
-
-
-```
-

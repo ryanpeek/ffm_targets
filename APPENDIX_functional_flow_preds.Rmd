@@ -44,11 +44,9 @@ FULL_MODE <- TRUE
 
 ```
 
-# Overview 
+# Overview
 
-This document outlines the process used to generate revised functional flow metric predictions for a given watershed. 
-The process outlined below is what is required to generate new predictions for the Little Shasta River case study, but the same steps could be followed in other watersheds too. 
-Generally this requires revising the catchment and streamline delineations, re-generating catchment and watershed scale data used in functional flow models, calculating the accumulated values for for each stream segment (`COMID`), and finally running the functional flow predictive model to generate revised flow predictions for the functional flow metrics.
+This document outlines the process used to generate revised functional flow metric predictions for a given watershed. The process outlined below is what is required to generate new predictions for the Little Shasta River case study, but the same steps could be followed in other watersheds too. Generally this requires revising the catchment and streamline delineations, re-generating catchment and watershed scale data used in functional flow models, calculating the accumulated values for for each stream segment (`COMID`), scaling or transforming these data, and finally running the functional flow predictive model to generate revised flow predictions for the functional flow metrics.
 
 Each step is detailed below, with the associated requirements and potential issues required to consider each step.
 
@@ -93,29 +91,35 @@ knitr::include_graphics(here("figures/tmap_lshasta.png"))
 
 ```
 
-
 ```{r, child=if(FULL_MODE) 'appendix01_catchment_delineation.Rmd'}
 ```
 
 # Download Catchment Attributes
 
-With the cleaned flowline network and catchment map, we can proceed with downloading catchment attributes to be used in the flow models. These data were downloaded from ScienceBase, "Select Attributes for NHDPlus Version 2.1 Reach Catchments and Modified Network Routed Upstream Watersheds for the Conterminous United States" (Wieczorek, Jackson and Schwarz, 2018, https://doi.org/10.5066/P9PA63SM).
+With the cleaned flowline network and catchment map, we can proceed with downloading catchment attributes to be used in the flow models. These data were downloaded from ScienceBase, "Select Attributes for NHDPlus Version 2.1 Reach Catchments and Modified Network Routed Upstream Watersheds for the Conterminous United States" (Wieczorek, Jackson and Schwarz, 2018, <https://doi.org/10.5066/P9PA63SM>).
 
- - [NHD Flowline Routing](https://www.sciencebase.gov/catalog/item/5b92790be4b0702d0e809fe5)
- - [Select Attributes](https://www.sciencebase.gov/catalog/item/5669a79ee4b08895842a1d47)
- - [Climate and Water Balance Attributes](https://www.sciencebase.gov/catalog/item/566f6c76e4b09cfe53ca77fe)
- - [Krug Average Annual Runoff](https://water.usgs.gov/GIS/metadata/usgswrd/XML/runoff.xml) (and [zipped data file](https://water.usgs.gov/GIS/dsdl/runoff.e00.zip))
+-   [NHD Flowline Routing](https://www.sciencebase.gov/catalog/item/5b92790be4b0702d0e809fe5)
+-   [Select Attributes](https://www.sciencebase.gov/catalog/item/5669a79ee4b08895842a1d47)
+-   [Climate and Water Balance Attributes](https://www.sciencebase.gov/catalog/item/566f6c76e4b09cfe53ca77fe)
+-   [Krug Average Annual Runoff](https://water.usgs.gov/GIS/metadata/usgswrd/XML/runoff.xml) (and [zipped data file](https://water.usgs.gov/GIS/dsdl/runoff.e00.zip))
 
+## Scaling Data
 
-## Accumulation for each `COMID` and covariate
+After subcatchment and basin level attributes have been downloaded, a common step is centering or scaling data to provide a more common set of units and magnitudes so the modeling can be more accurate. In this specific case, the exact scaling used in the original flow models remains unknown, and thus we currently cannot recreate the exact same accumulation dataset used in the original flow models. Scaling is typical with many different types of models, and provides better performance when variance (and data) all fall around a similar variance, and the scales aren't significantly different. 
 
-Accumulation of the catchment variables or covariates was done using variable appropriate calculations. Primarily this was an area weighted average, calculated as the area of a given COMID catchment, divided by the total accumulated drainage area for that catchment. So the sum of `variable * [(local_catch_area) / (drain_area)]`. Thus for headwater catchments, the area weight should equal **`1`**. 
+However, once a known scaling factor is described, accumulation and associated surface water functional flow metrics should be reproducible.
 
-The original data and crosswalked information is in this [file on github](https://github.com/ryanpeek/ffm_accumulation/blob/main/data_clean/08_accumulated_final_xwalk.csv). There are over 250+ variables in the dataset used for the accumulation. We need to join all these variables to the updated network and catchment areas.
+## Accumulation by `COMID` and covariate
 
-## Calculate Accumulation
+Accumulation of the catchment variables was done using variable appropriate calculations (i.e., area weighted average, sum, max, min, etc.). Area weighted average--calculated as the local area of a given COMID catchment, divided by the total accumulated drainage area for that catchment--was the primary calculation for the majority of the metrics (`area_weight = [(local_catch_area) / (drain_area)]`). In headwater catchments, the area weight should equal **`1`**, as the local catchment area and the cumulative drainage area are the same.
 
-First we need to use the cross walk to identify which variables require what type of calculation for the accumulation. Most will use the area weighted average, some require a min or max. 
+The original data and cross-walked information is in this [file on github](https://github.com/ryanpeek/ffm_accumulation/blob/main/data_clean/08_accumulated_final_xwalk.csv). There are over 250+ variables in the dataset used for the accumulation. We need to join all these variables to the updated network and catchment areas.
+
+## Calculate Accumulation by Variable Type
+
+Using the cross walk to identify which variables require what type of calculation for the accumulation, code was used to calculate the accumulation values for each year for each `COMID` for each variable of interest. These calculations used the raw dataset that was downloaded and trimmed from the national NHD dataset described above.
+
+For example, these are variables that used the area weighted average (*`AWA`*): 
 
 ```{r accumVarSel, eval=FALSE, echo=TRUE}
 
@@ -145,15 +149,18 @@ cat_df_awa <- catch_dat %>%
 
 ```
 
-Now do the accumulation. Here we pass the list of comids for each comid to a loop/`purrr::map` call to calculate each variable of interest that needs an area weighted average.
+Using the list of `COMIDs` generated previously (for each `COMID` there is a list of all upstream `COMIDs`), the accumulation calculation can be looped and applied to calculate each variable of interest. These data are then collated by `COMID` and year, and then used in the functional flow models.
+
+# Functional Flow Modeling & Future Steps
+
+The functional flow modeling process and framework is described in Grantham et al. (2022) and Yarnell et al. (2021). Using code and the parameters derived from these studies, functional flow models were created for each metric independently. Therefore 24 individual models existed for each of the 24 individual flow metrics. The reference dataset used to derive these models is described in Grantham et al. 2022. Reference models were then used to make flow metric predictions using the Little Shasta River accumulated dataset described above. Data were predicted for each year, and the median value was used to estimate the percentile (e.g., 10, 25, 50, 75, 90) values.
+
+Ultimately, the process identified above is functional and can be used broadly in surface-water driven systems. In the Little Shasta River, the upstream location of interest (LOI-3) was used as it is least impacted by both surfacewater/groundwater interactions, and the functional flow predictions were unaffected by the errors identified in the NHD flow network. 
+
+## Reproducibility
+
+The framework to derive this entire analysis was built on the `{targets}` package in R (version 4.1.3), which permits singular changes at any point in the workflow, but allows the user to rerun only the components which are subsequently affected.
+
+The code and writeups can be found here: https://github.com/ryanpeek/ffm_targets
 
 
-
-<!--
-## Test Approach
-
-Try using a known reference reach, pull the data and regenerate the accumulation to see if it actually matches with the metdata and modeled predictions. A small watershed may be suitable (see Hat Creek or upper Sac?). 
-
- - Hat Creek: (COMID: 7952754, gage T11355500)
- - Upper Sacramento: (COMID: 7964867 (T11341400)
--->

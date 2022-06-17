@@ -37,24 +37,71 @@ df_all <- bind_rows(orig_df, rev) %>%
   arrange(comid, wa_yr)
 
 # write out
-write_csv(df_all, "data_output/accum_comparison_north_v2.csv")
+#write_csv(df_all, "data_output/accum_comparison_north_v2.csv")
+
+# Add Labels --------------------------------------------------------------
+
+headwaters <- c(3917136, 3917138, 3917194)
+loi <- 3917198
+nonhw <- c(3917198, 3917914)
+df_all <- df_all %>%
+  mutate(comtype = case_when(
+    comid %in% headwaters ~ "headwater",
+    comid %in% nonhw ~ "non-headwater"
+  ))
 
 
 # Compare all Years One Metric --------------------------------------------
 
-ggplot() +
-  geom_point(data=df_all, aes(x=wa_yr, y=ppt_jan_wy, group=wa_yr, color=modtype, shape=modtype))
+var_sel <- "ppt_jan_wy"
 
+df_all %>% filter(comtype=="headwater") %>%
+  ggplot() +
+  geom_point(aes(x=wa_yr, y=.data[[var_sel]], group=wa_yr, color=as.factor(comid), shape=datatype), size=2.7) +
+  scale_color_discrete("Headwater COMID")+
+  theme_classic()+
+  labs(title="Accumulated Data Comparison")
 
+var_sel2 <- "tav_sum1"
+df_all %>% filter(comtype!="headwater") %>%
 ggplot() +
-  geom_point(data=df_all, aes(x=wa_yr, y=tav_sum1, group=wa_yr, color=modtype, shape=modtype))
-
-ggplot() +
-  geom_point(data=df_all, aes(x=wa_yr, y=ucs, color=modtype, shape=modtype), alpha=0.5, size=5)
+  geom_point(aes(x=wa_yr, y=.data[[var_sel2]], group=wa_yr, shape=datatype, color=as.factor(comid)), size=2.7, alpha=0.9) +
+  scale_color_brewer("Type", palette = "Set2")+
+  scale_shape_discrete("Accumulation Data")+
+  theme_classic()+
+  labs(title=glue("Accumulated Data Comparison: {var_sel2}"))
 
 # krug?
-ggplot() +
-  geom_point(data=raw, aes(x=wa_yr, y=krug_runoff)) +
-  geom_point(data=rev, aes(x=wa_yr, y=krug_runoff), color="red") +
-  ylim(c(2, 6))
+var_sel3 <- "krug_runoff"
+df_all %>% filter(comtype!="headwater") %>%
+  ggplot() +
+  geom_point(aes(x=wa_yr, y=.data[[var_sel3]], group=wa_yr, shape=datatype, color=as.factor(comid)), size=2.7, alpha=0.9) +
+  scale_color_brewer("Type", palette = "Set2")+
+  scale_shape_discrete("Accumulation Data")+
+  theme_classic()+
+  labs(title=glue("Accumulated Data Comparison: {var_sel3}"))
 
+
+# Calculations ------------------------------------------------------------
+
+# pick headwater and calc a single year
+df_all %>% filter(comid==3917136) %>%
+  group_by(datatype) %>%
+  select(ppt_jan_wy) %>%
+  summarize(mean(ppt_jan_wy))
+
+# summary per all years for one var
+df_all %>% filter(comid==3917136 & datatype=="orig") %>%
+  select(ppt_jan_wy) %>% summary()
+
+df_all %>% filter(comid==3917136 & datatype=="revised") %>%
+  select(ppt_jan_wy) %>% summary()
+
+# if scaled what is summary?
+df_all %>% filter(comid==3917136 & datatype=="revised") %>%
+  select(ppt_jan_wy) %>% summarize(scale(ppt_jan_wy)) %>% summary()
+
+df_all %>% filter(comid==3917136 & datatype=="revised") %>%
+  group_by(datatype) %>%
+  select(ppt_jan_wy) %>%
+  summarize(scale(ppt_jan_wy))

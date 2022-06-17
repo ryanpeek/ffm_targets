@@ -281,6 +281,10 @@ tm_shape(nlcd_crop) + tm_raster(title = "2019 NLCD") +
   # huc 10 
   tm_shape(h10) +
   tm_polygons(border.col="gray30", alpha = 0, lwd=3) +
+  tm_shape(flownet_map) +
+  tm_lines(lwd="arbolatesum", col = "steelblue", scale = 4, legend.lwd.show = FALSE) +
+  tm_shape(flownet_map) +
+  tm_lines(lwd=0.9, col = "steelblue2",legend.lwd.show = FALSE) +
   tm_legend(frame=FALSE,
             legend.text.size=0.65, legend.position=c(0.01,0.03),
             legend.show=TRUE, legend.outside = FALSE) +
@@ -291,12 +295,13 @@ tm_shape(nlcd_crop) + tm_raster(title = "2019 NLCD") +
 
 tmap_save(filename = "figures/map_nlcd_2019_lshasta.png", dpi=300,
        width = 11, height = 8)
+# knitr::plot_crop() # if necessary
 ```
 
 ```{r nlcdmap, echo=FALSE, eval=TRUE, fig.cap="NLCD Map of Little Shasta.", layout="l-page"}
 
 knitr::include_graphics(here("figures/map_nlcd_2019_lshasta.png"))
-
+# knitr::plot_crop()
 ```
 
 ```{r fullMap, eval=FALSE, echo=FALSE}
@@ -328,25 +333,16 @@ loi_map <-
   
   # flowlines
   tm_shape(flownet_map) +
-  tm_lines(col="strmtype", lwd="arbolatesum", scale = 4,
-           # palette = "Dark2", n = 4, contrast = c(0.3, 0.9),
-           palette = colblind4,
+  tm_lines(col="steelblue", lwd=0.4, scale = 2, legend.lwd.show = FALSE) +
+  tm_shape(flownet_map) +
+  tm_lines(col="strmtype", lwd="arbolatesum", scale = 5,
+           #palette = "Dark2", n = 4, contrast = c(0.3, 0.9),
+           palette = colblind4[c(1,2,4)],
            legend.lwd.show = FALSE,
            legend.col.show = TRUE, title.col = "") +
   
-  tm_shape(flownet_map) +
-  tm_lines(col="darkblue", lwd=0.1, scale = 4, legend.lwd.show = FALSE) +
-  
-  # mainstem
-  # tm_shape(flownet_main) +
-  # tm_lines(col="strmtype", lwd=2,
-  #          palette = colblind4,
-  #          legend.lwd.show = FALSE,
-  #          legend.col.show = TRUE, title.col = "") +
-
-  
   # flowlines shasta
-  tm_shape(shasta_main) + tm_lines(col="darkblue", lwd=3, legend.lwd.show = FALSE) +
+  #tm_shape(shasta_main) + tm_lines(col="darkblue", lwd=3, legend.lwd.show = FALSE) +
   #tm_text("Name", shadow = TRUE, along.lines = TRUE, auto.placement = TRUE) +
   
   # springs

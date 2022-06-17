@@ -157,6 +157,242 @@ The functional flow modeling process and framework is described in Grantham et a
 
 Ultimately, the process identified above is functional and can be used broadly in surface-water driven systems. In the Little Shasta River, the upstream location of interest (LOI-3) was used as it is least impacted by both surfacewater/groundwater interactions, and the functional flow predictions were unaffected by the errors identified in the NHD flow network. 
 
+## Groundwater Dependent Ecosystems
+
+The Little Shasta watershed contain a significant fraction of area classified as [Groundwater Dependent Ecosystems (or GDE's)](https://gis.water.ca.gov/arcgis/rest/services/Biota/i02_NaturalCommunitiesCommonlyAssociatedWithGroundwater/MapServer). Groundwater Dependent Ecosystems (live [interactive map here](https://www.arcgis.com/home/webmap/viewer.html?url=https%3A%2F%2Fgis.water.ca.gov%2Farcgis%2Frest%2Fservices%2FBiota%2Fi02_NaturalCommunitiesCommonlyAssociatedWithGroundwater%2FMapServer&source=sd)) represent a compilation of phreatophytic vegetation, regularly flooded natural wetlands and riverine areas, and springs and seeps extracted from 48 publicly available state and federal agency datasets. Two habitat classes are included in the dataset: wetland features commonly associated with the surface expression of groundwater under natural, unmodified conditions; and vegetation types commonly associated with the sub-surface presence of groundwater (phreatophytes).
+
+If we look at the landscape classification for the Little Shasta, the lower section of the watershed is predominantly X and Y, and also contains the GDE's.
+
+```{r getGagesGDEs, eval=FALSE, echo=FALSE}
+
+library(tmap)
+library(tmaptools)
+
+# USGS GAGES
+gages_usgs <- read_rds(file = "data_input/gages_little_shasta.rds") %>%
+   mutate(site_number=as.character(site_number))
+
+# LSR GAGE
+gage_lsr <- st_as_sf(data.frame("site_longitude"=-122.350357, "site_latitude"=41.733093, "site_name"="LSR", "site_number"="LSR", "site_agency"="UCD"), coords=c("site_longitude", "site_latitude"), crs=4326, remove=FALSE)
+
+# filter to just stations of interest
+gages <- gages_usgs %>% filter(site_number %in% c("11517000","11516900")) %>%
+   bind_rows(gage_lsr)
+# set icon for gages (good library here: https://www.nps.gov/maps/tools/symbol-library/index.html)
+icon_gages <- tmap_icons(file = "figures/gage_icon.png")
+# png file of the icon to be drawn; can be local or remote (url)
+
+gde_veg_lsh <- read_rds("data_output/gde_veg_lsh.rds")
+gde_wet_lsh <- read_rds("data_output/gde_wetland_lsh.rds")
+
+# tm_shape(gde_wet_lsh) + tm_polygons(col="forestgreen", alpha=0.5, border.col = NULL, title="GDEs", legend.show=TRUE) +
+# tm_shape(gages) + tm_symbols(shape = icon_gages, size = 0.3, border.lwd = NA, legend.col.show = TRUE) +
+#   tm_layout(bg.color="gray80", frame = F, fontfamily = "Roboto", title.size = 2) +
+#   tm_scale_bar(color.dark = "grey30")
+```
+
+```{r, getStreamTypes, eval=FALSE}
+
+# Add StreamTypes and Klamath ---------------------------------------------
+
+shasta_main <- read_rds("data_output/shasta_main_river.rds")
+lsh_strmtype <- read_rds("data_output/lsh_streamtypes.rds")
+
+# fix names
+lsh_strmtype <- lsh_strmtype %>%
+  mutate(strmtype=case_when(
+    Name == "Little Shasta Foothills" ~ "Foothills",
+    Name == "Little Shasta Bottomlands" ~ "Bottomlands",
+    Name == "Little Shasta Headwaters" ~ "Headwaters",
+    TRUE ~ "Tributaries"))
+
+# drop COMIDs that are canals:
+todrop <- c(3917952, 3917266, 3917222, 948010091, 948010092,
+            948010096, 948010095, 948010046, 948010047, 948010048,
+            3917924, 3917100, 3917926)
+lsh_foothills <- c(10040642, 10035874,10033986, 10032346, 10038060)
+lsh_bottomlands <- c(10021351, 10020862, 10020426)
+lsh_hw <- c(10043744, 10047601, 10052559, 10059365, 10069513, 0135206)
+
+flownet <- read_rds("data_output/cleaned_full_lshasta_nhd_flownet.rds")
+
+# update flowlines_map layer:
+flownet_map <-  flownet %>%
+  filter(!ID %in% todrop) %>% 
+  mutate(strmtype=case_when(
+    hydroseq %in% lsh_foothills ~ "Foothills",
+    hydroseq %in% lsh_bottomlands ~ "Bottomlands",
+    hydroseq %in% lsh_hw ~ "Headwaters",
+    TRUE ~ "Headwaters"))
+
+# Make LOI ----------------------------------------------------------------
+
+loi_pts <- st_point_on_surface(flownet_map) %>%
+  mutate(loi_id = case_when(
+    ID=="3917946" ~ "LOI-1",
+    ID=="3917950" ~ "LOI-2",
+    ID=="3917198" ~ "LOI-3"
+  )) %>% filter(!is.na(loi_id))
+
+# Raster Data -------------------------------------------------------------
+
+# get base layer for mapping
+#gm_osm <- read_osm(bb(flownet_map), type = "stamen-watercolor", raster=TRUE, zoom = 12)
+#save(gm_osm, file = "data_input/tmaptools_h10_stamen_wc.rda")
+#gm_osm <- read_osm(bb(flownet_map), type = "stamen-terrain", raster=TRUE, zoom = 13)
+#save(gm_osm, file = "data_input/tmaptools_h10_stamen_terrain.rda")
+#gm_osm <- read_osm(bb(flownet_map), type = "osm", raster=TRUE, zoom = 13)
+#save(gm_osm, file = "data_output/tmaptools_h10_osm.rda")
+#tm_shape(gm_osm) + tm_rgb()
+
+# get terrain
+load("data_input/tmaptools_h10_osm_natgeo.rda") # topo base layer
+tmap_options(max.raster = c(plot=1e6, view=1e6))
+
+tm_shape(gm_osm) + tm_rgb() +
+  tm_shape(gde_wet_lsh) + tm_polygons(col="forestgreen", alpha=0.9, border.col = NULL, title="GDEs", legend.show=TRUE) +
+  tm_shape(lsh_strmtype) + tm_lines(col = "Name", lwd=3, palette = "viridis", n = 3, contrast = c(0.4, 1)) +
+  tm_shape(gages) + tm_symbols(shape = icon_gages, size = 0.1, border.lwd = NA, legend.col.show = TRUE) +
+  tm_shape(loi_pts) + tm_symbols(col="loi_id", alpha=0.5, title.col = "LOI", palette = "PuOr")+
+  tm_layout(frame = F, fontfamily = "Roboto", title.size = 2) +
+  tm_scale_bar(color.dark = "grey10")
+```
+
+```{r getNLCD, eval=FALSE}
+
+# Get NLCD ----------------------------------------------------------------
+
+# devtools::install_github("ropensci/FedData")
+#library(FedData)
+#nlcd <- get_nlcd(template = h10, label = "lshasta",
+#                 extraction.dir = "data_input/nlcd")
+#unique(getValues(nlcd))
+
+# crop
+library(stars)
+nlcd_st <- read_stars("data_input/nlcd/lshasta_NLCD_Land_Cover_2019.tif")
+st_crs(nlcd_st)
+h10_ls_crop <- st_transform(h10, st_crs(nlcd_st))
+st_crs(nlcd_st) == st_crs(h10_ls_crop)
+nlcd_crop <- st_crop(nlcd_st, h10_ls_crop)
+
+# plot
+tm_shape(nlcd_crop) + tm_raster(title = "2019 NLCD") +
+  # huc 10 
+  tm_shape(h10) +
+  tm_polygons(border.col="gray30", alpha = 0, lwd=3) +
+  tm_legend(frame=FALSE,
+            legend.text.size=0.65, legend.position=c(0.01,0.03),
+            legend.show=TRUE, legend.outside = FALSE) +
+  tm_compass(type = "4star", position = c(0.82, 0.12), text.size = 0.5) +
+  tm_scale_bar(position = c(0.77,0.05), breaks = c(0,2.5,5),
+               text.size = 0.6) +
+  tm_layout(frame=FALSE, fontfamily = "Roboto")
+
+tmap_save(filename = "figures/map_nlcd_2019_lshasta.png", dpi=300,
+       width = 11, height = 8)
+```
+
+```{r nlcdmap, echo=FALSE, eval=TRUE, fig.cap="NLCD Map of Little Shasta.", layout="l-page"}
+
+knitr::include_graphics(here("figures/map_nlcd_2019_lshasta.png"))
+
+```
+
+```{r fullMap, eval=FALSE, echo=FALSE}
+
+# see
+#tmaptools::palette_explorer()
+library(randomcoloR)
+col4 <- randomcoloR::distinctColorPalette(k=4, runTsne = TRUE)
+colblind <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
+              "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+#pie(rep(1, 8), col = colblind)
+colblind4 <- c("#0072B2", "#009E73", "#F0E442", "#CC79A7")
+#pie(rep(1, 4), col = colblind4)
+
+# LShasta map with DEM
+loi_map <-
+  # baselayer
+  tm_shape(gm_osm) + tm_rgb() +
+  # HUC10 boundary
+  tm_shape(h10_ls_crop) +
+  tm_polygons(border.col="gray30", alpha = 0, lwd=3) +
+  # gde
+  tm_shape(gde_veg_lsh) +
+  tm_fill(col = "aquamarine3", alpha = 0.9, title = "GDE", legend.show = TRUE) +
+  tm_shape(gde_wet_lsh) +
+  tm_fill(col = "aquamarine3", alpha = 0.9, title = "GDE", legend.show = TRUE) +
+  tm_add_legend('fill', col=c('aquamarine3', 'seashell', 'darkseagreen3'), border.col='black', size=1,
+                labels=c(' GDE', " Private Land", " US Forest Service")) +
+  
+  # flowlines
+  tm_shape(flownet_map) +
+  tm_lines(col="strmtype", lwd="arbolatesum", scale = 4,
+           # palette = "Dark2", n = 4, contrast = c(0.3, 0.9),
+           palette = colblind4,
+           legend.lwd.show = FALSE,
+           legend.col.show = TRUE, title.col = "") +
+  
+  tm_shape(flownet_map) +
+  tm_lines(col="darkblue", lwd=0.1, scale = 4, legend.lwd.show = FALSE) +
+  
+  # mainstem
+  # tm_shape(flownet_main) +
+  # tm_lines(col="strmtype", lwd=2,
+  #          palette = colblind4,
+  #          legend.lwd.show = FALSE,
+  #          legend.col.show = TRUE, title.col = "") +
+
+  
+  # flowlines shasta
+  tm_shape(shasta_main) + tm_lines(col="darkblue", lwd=3, legend.lwd.show = FALSE) +
+  #tm_text("Name", shadow = TRUE, along.lines = TRUE, auto.placement = TRUE) +
+  
+  # springs
+  tm_shape(springs) +
+  tm_dots(col="skyblue", size = 0.4, title = "Springs", legend.show = TRUE, shape = 21) +
+  tm_shape(springs[c(1,2),]) +
+  tm_text("Name", auto.placement = FALSE, col="gray10", size=0.8,
+          just = "bottom", ymod = -1, xmod=2, shadow = FALSE)+
+  tm_add_legend('symbol', col='skyblue', border.col='black', size=1,
+                labels=c(' Springs')) +
+  # gages
+  tm_shape(gages) + 
+  tm_symbols(shape = icon_gages, size = 0.1, border.lwd = NA, title.shape = "Gages") +
+  tm_text("site_number", col = "black", auto.placement = FALSE, size = 0.5,
+          just = "left", ymod = 1.2, xmod=0.5, shadow = TRUE) +
+  # LOI points
+  tm_shape(loi_pts) + tm_dots(col="darkgoldenrod1", shape=22, size=0.5, alpha=0.7) +
+  tm_text("loi_id", fontface = "bold", auto.placement = FALSE,
+          bg.color = "white", bg.alpha = 0.1, col = "darkgoldenrod2",
+          just = "right", xmod=-0.4, ymod=-1, shadow = TRUE) +
+  tm_add_legend('symbol',shape = 22, col='darkgoldenrod1', border.col='black', size=1,
+                labels=c(' Location of Interest')) +
+  
+  # layout
+  tm_legend(bg.color="white", frame=TRUE, legend.text.size=0.8, legend.position=c(0.82,0.05),
+            legend.show=TRUE, legend.outside = FALSE) +
+  tm_layout(frame = FALSE,
+            attr.outside = FALSE)+
+  tm_compass(type = "4star", position = c(0.12, 0.12), text.size = 0.5) +
+  tm_scale_bar(position = c(0.05,0.05), breaks = c(0,2.5,5),
+               text.size = 0.6)
+loi_map
+
+# save
+tmap_save(loi_map, filename = "figures/map_of_loi_w_gdes.jpg", height = 8.5, width = 11, units = "in", dpi = 300)
+
+
+```
+
+```{r fullLSHmap, echo=FALSE, eval=TRUE, fig.cap="Map of Little Shasta.", layout="l-page"}
+
+knitr::include_graphics(here("figures/map_of_loi_w_gdes.jpg"))
+
+```
+
+
 ## Reproducibility
 
 The framework to derive this entire analysis was built on the `{targets}` package in R (version 4.1.3), which permits singular changes at any point in the workflow, but allows the user to rerun only the components which are subsequently affected.

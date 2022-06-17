@@ -178,6 +178,10 @@ gage_lsr <- st_as_sf(data.frame("site_longitude"=-122.350357, "site_latitude"=41
 # filter to just stations of interest
 gages <- gages_usgs %>% filter(site_number %in% c("11517000","11516900")) %>%
    bind_rows(gage_lsr)
+
+# boundary?
+gage_bounds <- st_as_sfc(st_bbox(gages)) %>% st_transform(3310) %>% st_buffer(800, endCapStyle = 'ROUND') %>% st_transform(4326)
+plot(gage_bounds) + plot(gages$geometry, add=TRUE)
 # set icon for gages (good library here: https://www.nps.gov/maps/tools/symbol-library/index.html)
 icon_gages <- tmap_icons(file = "figures/gage_icon.png")
 # png file of the icon to be drawn; can be local or remote (url)
@@ -185,10 +189,11 @@ icon_gages <- tmap_icons(file = "figures/gage_icon.png")
 gde_veg_lsh <- read_rds("data_output/gde_veg_lsh.rds")
 gde_wet_lsh <- read_rds("data_output/gde_wetland_lsh.rds")
 
-# tm_shape(gde_wet_lsh) + tm_polygons(col="forestgreen", alpha=0.5, border.col = NULL, title="GDEs", legend.show=TRUE) +
-# tm_shape(gages) + tm_symbols(shape = icon_gages, size = 0.3, border.lwd = NA, legend.col.show = TRUE) +
-#   tm_layout(bg.color="gray80", frame = F, fontfamily = "Roboto", title.size = 2) +
-#   tm_scale_bar(color.dark = "grey30")
+tm_shape(gde_wet_lsh, bbox = gage_bounds) + tm_polygons(col="forestgreen", alpha=0.5, border.col = NULL, title="GDEs", legend.show=TRUE) +
+tm_shape(gages) + tm_symbols(shape = icon_gages, size = 0.3, border.lwd = NA, legend.col.show = TRUE) +
+  tm_layout(bg.color="gray80", frame = F, fontfamily = "Roboto", title.size = 2) +
+  tm_scale_bar(color.dark = "grey30")
+
 ```
 
 ```{r, getStreamTypes, eval=FALSE}
@@ -306,6 +311,9 @@ knitr::include_graphics(here("figures/map_nlcd_2019_lshasta.png"))
 
 ```{r fullMap, eval=FALSE, echo=FALSE}
 
+# xpand boundaries
+gage_bounds <- st_as_sfc(st_bbox(gages)) %>% st_transform(3310) %>% st_buffer(1500, endCapStyle = 'ROUND') %>% st_transform(4326)
+
 # see
 #tmaptools::palette_explorer()
 library(randomcoloR)
@@ -324,7 +332,7 @@ loi_map <-
   tm_shape(h10_ls_crop) +
   tm_polygons(border.col="gray30", alpha = 0, lwd=3) +
   # gde
-  tm_shape(gde_veg_lsh) +
+  tm_shape(gde_veg_lsh, bbox = gage_bounds) +
   tm_fill(col = "aquamarine3", alpha = 0.9, title = "GDE", legend.show = TRUE) +
   tm_shape(gde_wet_lsh) +
   tm_fill(col = "aquamarine3", alpha = 0.9, title = "GDE", legend.show = TRUE) +
@@ -354,7 +362,7 @@ loi_map <-
   tm_add_legend('symbol', col='skyblue', border.col='black', size=1,
                 labels=c(' Springs')) +
   # gages
-  tm_shape(gages) + 
+  tm_shape(gages, bbox=gage_bounds) + 
   tm_symbols(shape = icon_gages, size = 0.1, border.lwd = NA, title.shape = "Gages") +
   tm_text("site_number", col = "black", auto.placement = FALSE, size = 0.5,
           just = "left", ymod = 1.2, xmod=0.5, shadow = TRUE) +

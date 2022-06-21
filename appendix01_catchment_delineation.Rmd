@@ -52,7 +52,7 @@ This document reviews the process to delineate streamlines from the original raw
 
 ## Watershed Units
 
-The Hydrologic Unit Code or HUC^[see [here for data](https://databasin.org/maps/8df84d8ed5f34cac8d1f54d5c97fdd77/) ] are hierarchically nested watershed units that can be used for a variety of analyses. The lower the HUC number (i.e., HUC4), the larger the watershed unit. The finest scale HUC (smallest watershed unit) is HUC12, and the largest is HUC2.
+The Hydrologic Unit Code or HUC^[see [here for data](https://databasin.org/maps/8df84d8ed5f34cac8d1f54d5c97fdd77/) ] are hierarchically nested watershed units that can be used for a variety of analyses. The lower or smaller the HUC number (i.e., HUC4), the larger the watershed unit. The finest scale HUC (smallest watershed unit) is HUC12, and the largest is HUC2.
 
 ```{r, echo=FALSE, fig.cap='HUC Hydrologic Boundary Dataset, figure from USGS'}
 
@@ -62,7 +62,7 @@ include_graphics("https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/pr
 
 ```
 
-Watersheds can be delineated using the HUC codes, with a lower HUC designating a larger watershed. These HUCs are nested, and should ostensibly match with the flowline and basin data that is pulled via the NHD dataset. 
+Watersheds can be delineated using the HUC codes. These HUCs are nested, and should ostensibly match with the flowline and basin data that is pulled via the NHD dataset. 
 
 The current HUC8 and HUC12s associated with the Little Shasta River, (`1801020703`), show these data don't overlap very cleanly, and some revision may be required to delineate a more discrete watershed.
 
@@ -328,34 +328,37 @@ st_geometry(comid_nodes_end) <- "node_end"
 # 
 ```
 
-We can now use this set of `COMIDs` and flowlines to create a cleaned flow network, which is used for the accumulation of catchment variables. Here we add nodes which represent the start and end and are used to calculate the flow network. Notably there are a few where canal/flow direction is opposite (see red segments), and the end nodes should be switched (orange node should be in the mainstem Little Shasta instead of in a headwater or upper catchment).
+We can now use this set of `COMIDs` and flowlines to create a cleaned flow network, which is used for the accumulation of catchment variables. Here we add nodes which represent the start and end and are used to calculate the flow network. Notably there are a few where canals have a flow direction that is opposite of the natural drainage (see red segments), and the end nodes should be switched (orange node should be in the mainstem Little Shasta instead of in a headwater or upper catchment).
 
 ```{r makeFlownet, layout="l-page", fig.height=6, fig.cap="Visualize start (green) and end (orange) nodes of NHD flowlines. Red segments need revision."}
 
-
 # set modes
 tmap::tmap_mode("plot")
+
 m2 <- tm_shape(catch_trim) +
   tm_polygons(alpha = 0,border.alpha = 0.5,border.col = "gray", col="gray", title="Catchments", legend.show=TRUE)+
   tm_shape(comid_trim %>% 
-            select(comid, fromnode, tonode, hydroseq, dnhydroseq)) +
+             select(comid, fromnode, tonode, hydroseq, dnhydroseq)) +
   tm_lines(col="fromnode", legend.col.show = FALSE, palette = "viridis",
            title.col = "Streamlines")+
+    tm_add_legend('line', lwd=2, col=c("#440154FF", "#FDE725FF", "red"),
+                  labels=c('Mainstem', 'Headwaters', 'Revised Canal'), title = "Legend") +
   tm_shape(comid_nodes_start) + 
   tm_dots(size = 0.4, border.col="forestgreen", alpha=0.7, border.alpha=1, shape = 21, col = "forestgreen", legend.show = TRUE, title="Start") + 
-  tm_shape(comid_nodes_end) + 
+  tm_add_legend("symbol", shape=21, col="forestgreen", size=0.5, border.col="forestgreen", labels=c('Start')) +
+tm_shape(comid_nodes_end) + 
   tm_dots(size = 0.9, alpha=0.6, border.alpha=1, border.col="orange", shape = 21, col = "orange", title="End") + 
-  tm_shape(comid_trim %>% 
-            select(comid, fromnode, tonode, hydroseq, dnhydroseq) %>% 
-            filter(comid %in% c("948010095", "948010096", "948010092", "3917222"))) +
+  tm_add_legend("symbol", shape=21, col="orange", size=1, border.col="orange", labels=c('End')) +
+tm_shape(comid_trim %>% 
+           select(comid, fromnode, tonode, hydroseq, dnhydroseq) %>% 
+           filter(comid %in% c("948010095", "948010096", "948010092", "3917222"))) +
   tm_lines(col="red", legend.col.show = TRUE,
            title.col ="Revised Directionality")+
-  tm_compass() + tm_scale_bar() + 
+tm_compass() + tm_scale_bar() + 
   tm_layout(frame = FALSE,
             legend.show = TRUE,
             legend.position = c("left", "top"))
-  
-  
+
 m2
   
 # # visualize nodes

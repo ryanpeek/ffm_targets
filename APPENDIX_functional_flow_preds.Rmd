@@ -161,7 +161,7 @@ Ultimately, the process identified above is functional and can be used broadly i
 
 The Little Shasta watershed contain a significant fraction of area classified as [Groundwater Dependent Ecosystems (or GDE's)](https://gis.water.ca.gov/arcgis/rest/services/Biota/i02_NaturalCommunitiesCommonlyAssociatedWithGroundwater/MapServer). Groundwater Dependent Ecosystems (live [interactive map here](https://www.arcgis.com/home/webmap/viewer.html?url=https%3A%2F%2Fgis.water.ca.gov%2Farcgis%2Frest%2Fservices%2FBiota%2Fi02_NaturalCommunitiesCommonlyAssociatedWithGroundwater%2FMapServer&source=sd)) represent a compilation of phreatophytic vegetation, regularly flooded natural wetlands and riverine areas, and springs and seeps extracted from 48 publicly available state and federal agency datasets. Two habitat classes are included in the dataset: wetland features commonly associated with the surface expression of groundwater under natural, unmodified conditions; and vegetation types commonly associated with the sub-surface presence of groundwater (phreatophytes).
 
-If we look at the landscape classification for the Little Shasta, the lower section of the watershed is predominantly X and Y, and also contains the GDE's.
+If we look at the landscape classification for the Little Shasta, the lower section of the watershed is predominantly cultivated crops, hay/pasture, and shrub/scrub, and contains the GDE's, while the upper part of the watershed is predominantly evergreen forest.
 
 ```{r getGagesGDEs, eval=FALSE, echo=FALSE}
 
@@ -189,9 +189,14 @@ icon_gages <- tmap_icons(file = "figures/gage_icon.png")
 gde_veg_lsh <- read_rds("data_output/gde_veg_lsh.rds")
 gde_wet_lsh <- read_rds("data_output/gde_wetland_lsh.rds")
 
-tm_shape(gde_wet_lsh, bbox = gage_bounds) + tm_polygons(col="forestgreen", alpha=0.5, border.col = NULL, title="GDEs", legend.show=TRUE) +
-tm_shape(gages) + tm_symbols(shape = icon_gages, size = 0.3, border.lwd = NA, legend.col.show = TRUE) +
-  tm_layout(bg.color="gray80", frame = F, fontfamily = "Roboto", title.size = 2) +
+tm_shape(h10) +
+  tm_polygons(border.col="gray30", alpha = 0, lwd=3) +
+  tm_shape(gde_wet_lsh, bbox = gage_bounds) +
+  tm_polygons(col="forestgreen", alpha=0.5, border.col = NULL, title="GDEs", legend.show=TRUE) +
+  tm_shape(lsh_flowlines) +
+  tm_lines(lwd=0.9, col = "steelblue2",legend.lwd.show = FALSE) +
+  tm_shape(gages) + tm_symbols(shape = icon_gages, size = 0.3, border.lwd = NA, legend.col.show = TRUE) +
+  tm_layout(bg.color="gray98", frame = F, fontfamily = "Roboto", title.size = 2) +
   tm_scale_bar(color.dark = "grey30")
 
 ```
@@ -276,7 +281,7 @@ tm_shape(gm_osm) + tm_rgb() +
 # crop
 library(stars)
 nlcd_st <- read_stars("data_input/nlcd/lshasta_NLCD_Land_Cover_2019.tif")
-st_crs(nlcd_st)
+#st_crs(nlcd_st)
 h10_ls_crop <- st_transform(h10, st_crs(nlcd_st))
 st_crs(nlcd_st) == st_crs(h10_ls_crop)
 nlcd_crop <- st_crop(nlcd_st, h10_ls_crop)
@@ -308,6 +313,20 @@ tmap_save(filename = "figures/map_nlcd_2019_lshasta.png", dpi=300,
 knitr::include_graphics(here("figures/map_nlcd_2019_lshasta.png"))
 # knitr::plot_crop()
 ```
+
+```{r nlcdtable, echo=FALSE, eval=TRUE, fig.cap="NLCD Table: proportions of land cover in Little Shasta HUC10."}
+
+library(stars)
+nlcd_st <- read_stars("data_input/nlcd/lshasta_NLCD_Land_Cover_2019.tif")
+#st_crs(nlcd_st)
+h10_ls_crop <- st_transform(h10, st_crs(nlcd_st))
+#st_crs(nlcd_st) == st_crs(h10_ls_crop)
+nlcd_crop <- st_crop(nlcd_st, h10_ls_crop)
+
+table(droplevels(nlcd_crop)) %>% as.data.frame() %>% mutate(total = sum(Freq), prcnt = round(Freq/total * 100, 2)) %>% select(NLCD=1, 4) %>% arrange(desc(prcnt)) %>% kable()
+
+```
+
 
 ```{r fullMap, eval=FALSE, echo=FALSE}
 

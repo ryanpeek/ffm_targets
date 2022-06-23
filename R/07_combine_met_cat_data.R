@@ -8,7 +8,9 @@ library(fs)
 
 # requires:
 ## filtered files with a COMID column
+# tar_load(met_data)
 # metdata <- met_data
+# tar_load(revised_catchments_north)
 # catchment_dat <- revised_catchments_north[["catchments"]]
 # outdir <- "data_output"
 # modelname <- "north"
@@ -50,25 +52,22 @@ f_combine_met_cat_data <- function(metdata, catchment_dat, outdir, modelname){
     # add elev_rng:
     mutate(elv_rng = cat_elev_max-cat_elev_min, .after="cat_elev_max") %>%
     # select cols in xwalk
-    select(matches(xwalk$dat_output)) #%>%
-    # add back in specifics that are missing?
-    #left_join(., ffc_df %>% select(comid, tot_ewt, tot_wtdep), by="comid")
+    select(matches(xwalk$dat_output)) # only thing missing is area_sf
 
-  #names(ffc_final) %>% as_tibble() %>% View(title = "finnames")
-  xwalk[!xwalk$dat_output %in% names(ffc_final),] %>% View()
+  # names(ffc_final) %>% as_tibble() %>% View(title = "finnames")
+  # xwalk[!xwalk$dat_output %in% names(ffc_final),] %>% View()
 
   # now select vars
   cat_ffc_data <- ffc_final %>%
-    left_join(catchment_dat %>% dplyr::select(comid, area, totda, area_weight), by="comid") %>%
+    left_join(st_drop_geometry(catchment_dat) %>% dplyr::select(comid, area, totda, area_weight), by="comid") %>%
     select(comid, totda, area_sf=area, area_weight, comid_wy, everything())
 
-  #names(cat_ffc_data) %>% as_tibble() %>% View(title = "finnames2")
+  # names(cat_ffc_data) %>% as_tibble() %>% View(title = "finnames2")
 
   # what's missing or named differently?
-  #xwalk[!xwalk$mod_input_final %in% names(cat_ffc_data),c(1:4,6)] %>% arrange(accum_op_class) %>% View()
+  #xwalk[!xwalk$mod_input_final %in% names(cat_ffc_data),c(1:4,6)] %>% View()
 
-  # these can all be calculated and added in next script
-
+  # these are renamed in next step (accumulation)
   # export
   write_csv(cat_ffc_data, file = glue("{outdir}/ffc_combined_metrics_raw_{modelname}.csv"))
 

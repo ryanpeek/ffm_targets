@@ -6,7 +6,7 @@
 
 # cat_data <- cat_ffc_data
 # comlist <- revised_catchments_north[["comlist_accum"]]
-# xwalk <- walk
+# xwalk <- xwalk #tar_load(xwalk)
 # outdir <- "data_output"
 # modelname="north"
 
@@ -122,6 +122,7 @@ f_calc_accum_data <- function(cat_data, comlist, xwalk, outdir, modelname){
   varnames_nocalc <- xwalk %>%
     filter(accum_op_class %in% c("NONE")) %>%
     filter(!dat_output %in% c("comid", "comid_wy", "wa_yr")) %>%
+    #   "tot_wtdep" ~ "tot_ewt"
     select(dat_output)
 
   # subset data
@@ -135,7 +136,7 @@ f_calc_accum_data <- function(cat_data, comlist, xwalk, outdir, modelname){
            et_cat = cat_et,
            pet_cat = cat_pet,
            rh_cat = cat_rh,
-           depth_wattab = tot_wtdep)
+           depth_wattab = tot_ewt)
 
   # names(dat_df_nocalc)
   # cat_wtdep w awa is wtdepave
@@ -207,11 +208,22 @@ f_calc_accum_data <- function(cat_data, comlist, xwalk, outdir, modelname){
   names_df <- input_sample_names %>% left_join(., xwalk, by=c("inputs"="mod_input_raw")) %>%
     filter(!is.na(mod_input_final))
 
+  # missing?
+  #xwalk[!xwalk$mod_input_final %in% names_df$mod_input_final,] %>%
+  #  arrange(accum_op_class)
+
   # reorder to match sample
   dat_final2 <- dat_final %>%
     select(names_df$mod_input_final) %>%
     # filter out years 1945-1949
     filter(!wa_yr %in% c(1945:1949))
+
+  # fix odd magnitude issue:
+  # rfact, et_cat, et, pptavg_cat, pptavg_basin off by order of 10
+  # krug_runoff needs to be rescaled to mm? (in to mm 1*25.4)
+  dat_final2 <- dat_final2 %>%
+    mutate(across(c(cat_rfact, et_cat, et_basin, pptavg_cat, pptavg_basin), .fns = function(x)(x/10)))
+  #dat_final2 %>% select(cat_rfact, et_cat, et_basin, pptavg_cat, pptavg_basin) %>% summary()
 
   write_csv(dat_final2, file = glue("{outdir}/accumulated_raw_metrics_{modelname}.csv"))
   return(dat_final2)

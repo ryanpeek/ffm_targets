@@ -1,0 +1,73 @@
+comid,metric,orig_p50,north_p50,flow_component
+3917198,DS_Dur_WS,148,164.229,Dry-season baseflow
+3917950,DS_Dur_WS,139,177.875,Dry-season baseflow
+3917946,DS_Dur_WS,139,179,Dry-season baseflow
+3917198,DS_Mag_50,8.68,44.309,Dry-season baseflow
+3917950,DS_Mag_50,89.3,57.983,Dry-season baseflow
+3917946,DS_Mag_50,87.7,66.639,Dry-season baseflow
+3917198,DS_Mag_90,10.7,92.197,Dry-season baseflow
+3917950,DS_Mag_90,128,127.768,Dry-season baseflow
+3917946,DS_Mag_90,126,146.468,Dry-season baseflow
+3917198,DS_Tim,299,263,Dry-season baseflow
+3917950,DS_Tim,300,260,Dry-season baseflow
+3917946,DS_Tim,300,260,Dry-season baseflow
+3917198,FA_Dur,4,7,Fall pulse flow
+3917950,FA_Dur,4,8,Fall pulse flow
+3917946,FA_Dur,4,8,Fall pulse flow
+3917198,FA_Mag,27.5,1285.18,Fall pulse flow
+3917950,FA_Mag,262,2157.153,Fall pulse flow
+3917946,FA_Mag,268,2378.793,Fall pulse flow
+3917198,FA_Tim,32.3,25,Fall pulse flow
+3917950,FA_Tim,27,25,Fall pulse flow
+3917946,FA_Tim,27,24.75,Fall pulse flow
+3917198,Peak_10,373,602.199,Peak flow
+3917950,Peak_10,5850,2481.719,Peak flow
+3917946,Peak_10,3570,2775.121,Peak flow
+3917198,Peak_2,143,513.836,Peak flow
+3917950,Peak_2,1530,854.462,Peak flow
+3917946,Peak_2,1650,961.608,Peak flow
+3917198,Peak_5,165,786.483,Peak flow
+3917950,Peak_5,2500,1683.281,Peak flow
+3917946,Peak_5,2570,1924.949,Peak flow
+3917198,Peak_Dur_10,1,4,Peak flow
+3917950,Peak_Dur_10,1,4,Peak flow
+3917946,Peak_Dur_10,1,4,Peak flow
+3917198,Peak_Dur_2,2,16,Peak flow
+3917950,Peak_Dur_2,2,21.288,Peak flow
+3917946,Peak_Dur_2,2,19.333,Peak flow
+3917198,Peak_Dur_5,1,6.583,Peak flow
+3917950,Peak_Dur_5,1,7,Peak flow
+3917946,Peak_Dur_5,1,6.775,Peak flow
+3917198,Peak_Fre_10,1,2,Peak flow
+3917950,Peak_Fre_10,1,2,Peak flow
+3917946,Peak_Fre_10,1,2,Peak flow
+3917198,Peak_Fre_2,1,6,Peak flow
+3917950,Peak_Fre_2,1,6.425,Peak flow
+3917946,Peak_Fre_2,1,6.4,Peak flow
+3917198,Peak_Fre_5,1,2,Peak flow
+3917950,Peak_Fre_5,1,2,Peak flow
+3917946,Peak_Fre_5,1,2,Peak flow
+3917198,SP_Dur,77.6,96.6,Spring recession flow
+3917950,SP_Dur,85.8,100,Spring recession flow
+3917946,SP_Dur,86,96.917,Spring recession flow
+3917198,SP_Mag,90,5971.964,Spring recession flow
+3917950,SP_Mag,770,8309.532,Spring recession flow
+3917946,SP_Mag,770,9367.072,Spring recession flow
+3917198,SP_ROC,0.056,0.082,Spring recession flow
+3917950,SP_ROC,0.056,0.101,Spring recession flow
+3917946,SP_ROC,0.056,0.098,Spring recession flow
+3917198,SP_Tim,223,209.7,Spring recession flow
+3917950,SP_Tim,227,206.167,Spring recession flow
+3917946,SP_Tim,226,211.3,Spring recession flow
+3917198,Wet_BFL_Dur,121,160.817,Wet-season baseflow
+3917950,Wet_BFL_Dur,121,158,Wet-season baseflow
+3917946,Wet_BFL_Dur,126,161.133,Wet-season baseflow
+3917198,Wet_BFL_Mag_10,10.8,162.018,Wet-season baseflow
+3917950,Wet_BFL_Mag_10,132,213.622,Wet-season baseflow
+3917946,Wet_BFL_Mag_10,131,227.432,Wet-season baseflow
+3917198,Wet_BFL_Mag_50,32.5,433.06,Wet-season baseflow
+3917950,Wet_BFL_Mag_50,301,610.469,Wet-season baseflow
+3917946,Wet_BFL_Mag_50,304,680.024,Wet-season baseflow
+3917198,Wet_Tim,73.8,60.5,Wet-season baseflow
+3917950,Wet_Tim,90.2,60.458,Wet-season baseflow
+3917946,Wet_Tim,88.1,60.225,Wet-season baseflow

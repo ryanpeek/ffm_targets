@@ -18,9 +18,10 @@ ffm_orig <- ffm_orig %>% filter(comid %in% lois) %>%
   select(comid, metric, orig_p50=p50, flow_component)
 
 ffm_north <- ffm_north %>%
-  select(comid, area, metric, north_p50=p50) %>%
+  select(comid, metric, north_p50=p50) %>%
   # fix the metric name
-  tidyr::separate(metric, sep = "[_[:num:]_north")
+  mutate(metric = stringr::str_remove(metric, pattern = "_north"),
+         metric = gsub("_\\d+$", "", metric))
 
 # Join Data ---------------------------------------------------------------
 

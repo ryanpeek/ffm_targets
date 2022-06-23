@@ -104,8 +104,8 @@ tav_sum1,tav_sum1,tav_sum1,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM 
 tav_sum2,tav_sum2,tav_sum2,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
 tav_sum3,tav_sum3,tav_sum3,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
 tav_sum4,tav_sum4,tav_sum4,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-cat_basin_slope,SLOPE_PCT_30M,cat_basin_slope,NA,area weighted avg,AWA,BASIN_CHAR_CAT_CONUS.csv,"Mean basin slope, percent. Derived from 30m NHDPlus"
-cat_elev_mean,ELEV_MEAN_M_BASIN_30M,cat_elev_mean,NA,area weighted avg,AWA,BASIN_CHAR_CAT_CONUS.csv,Mean basin elevation (meters) from 30m NHDPlus
+cat_basin_slope,SLOPE_PCT_30M,cat_basin_slope,NA,none,NONE,BASIN_CHAR_CAT_CONUS.csv,"Mean basin slope, percent. Derived from 30m NHDPlus"
+cat_elev_mean,ELEV_MEAN_M_BASIN_30M,cat_elev_mean,NA,none,NONE,BASIN_CHAR_CAT_CONUS.csv,Mean basin elevation (meters) from 30m NHDPlus
 cat_hlr_1,HLR1,cat_hlr_1,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
 cat_hlr_2,HLR2,cat_hlr_2,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
 cat_hlr_3,HLR3,cat_hlr_3,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)

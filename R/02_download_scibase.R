@@ -36,19 +36,22 @@ f_download_scibase <- function(url_list, dl_dir){
   print("Moving to Krug Runoff...")
 
   # krug
-  download.file("https://water.usgs.gov/GIS/dsdl/runoff.e00.zip",
-                destfile = glue("{here(dl_dir)}/krug_runoff_avg_ann_1951-1980.e00.zip"))
+  if(!file.exists(glue("{here(dl_dir)}/krug_runoff_avg_ann_1951-1980.e00"))){
+    download.file("https://water.usgs.gov/GIS/dsdl/runoff.e00.zip",
+                  destfile = glue("{here(dl_dir)}/krug_runoff_avg_ann_1951-1980.e00.zip"))
+    # unzip and make KRUG RUNOFF
+    unzip(glue("{here(dl_dir)}/krug_runoff_avg_ann_1951-1980.e00.zip"),
+          exdir = glue("{here(dl_dir)}"))
 
-  # unzip and make KRUG RUNOFF
-  unzip(glue("{here(dl_dir)}/krug_runoff_avg_ann_1951-1980.e00.zip"),
-        exdir = glue("{here(dl_dir)}"))
+    # rename
+    fs::file_move(path = glue("{here(dl_dir)}/runoff.e00"),
+                  new_path = glue("{here(dl_dir)}/krug_runoff_avg_ann_1951-1980.e00"))
 
-  # rename
-  fs::file_move(path = glue("{here(dl_dir)}/runoff.e00"),
-                new_path = glue("{here(dl_dir)}/krug_runoff_avg_ann_1951-1980.e00"))
+    # deleted krug zip
+    fs::file_delete(path = glue("{here(dl_dir)}/krug_runoff_avg_ann_1951-1980.e00.zip"))
+    }
+  else(print("Krug Runoff already exists"))
 
-  # deleted krug zip
-  fs::file_delete(path = glue("{here(dl_dir)}/krug_runoff_avg_ann_1951-1980.e00.zip"))
   print("Done!")
 
   # now list the files!

@@ -59,18 +59,31 @@ f_make_met_data <- function(filelist, outdir, modelname){
     dplyr::select(-c(matches("2016|2017"))) %>%
     # then split and pivot
     pivot_longer(!COMID,
-                 names_to = c("metric", "month","wa_yr"),
+                 names_to = c("metric", "month","yr"),
                  names_pattern = "CAT_([[:alpha:]]{3})_([[:alpha:]]{3})([[:digit:]]{4})",
                  values_to = "value") %>%
     janitor::clean_names() %>%
     # fix names to reflect sample model needs
-    mutate("comid_wy" = glue("{comid}_{wa_yr}"), .after="comid",
-           "wa_yr" = as.integer(wa_yr),
+    mutate("comid_yr" = glue("{comid}_{yr}"), .after="comid",
+           "yr" = as.integer(yr), # need to add wa_yr
+           var_mon_yr = tolower(glue("{metric}_{month}_yr"))) %>%
+    select(comid, comid_yr, yr, month, metric, var_mon_yr, value) %>%
+    # fix OCT, NOV, DEC for water year
+    group_by(comid, var_mon_yr, yr) %>%
+    mutate(wa_yr = case_when(
+      grepl("OCT|NOV|DEC", month, ignore.case = TRUE) ~ (yr + 1L),
+      TRUE ~ yr)
+    ) %>%
+    ungroup() %>%
+    # fix names now
+    mutate(comid_wy = glue("{comid}_{wa_yr}"), .after="comid",
            var_mon_wy = tolower(glue("{metric}_{month}_wy"))) %>%
-    select(comid, comid_wy, wa_yr, month, metric, var_mon_wy, value) %>%
+    select(comid, comid_wy, yr, wa_yr, month, metric, var_mon_wy, value) %>%
     # add pwy
-    arrange(comid, var_mon_wy, wa_yr) %>%
-    mutate(value_pwy = lag(value))
+    group_by(comid_wy, month, metric) %>%
+    #arrange(comid, var_mon_wy, wa_yr) %>%
+    mutate(value_pwy = lag(value), .after="value") %>%
+    ungroup()
 
   # calculate the seasonal pieces
   met_df_seas <- met_df_long %>%

@@ -79,9 +79,11 @@ f_make_met_data <- function(filelist, outdir, modelname){
     mutate(comid_wy = glue("{comid}_{wa_yr}"), .after="comid",
            var_mon_wy = tolower(glue("{metric}_{month}_wy"))) %>%
     select(comid, comid_wy, yr, wa_yr, month, metric, var_mon_wy, value) %>%
-    # add pwy
-    group_by(comid_wy, month, metric) %>%
-    #arrange(comid, var_mon_wy, wa_yr) %>%
+    # add pwy: be aware this works because of buffer in years
+    # data here is 1945:2015 and gets trimmed to 1950...need more
+    # code to deal with moving window across years/months/metrics if
+    # buffer years not available.
+    arrange(comid, var_mon_wy, wa_yr) %>%
     mutate(value_pwy = lag(value), .after="value") %>%
     ungroup()
 

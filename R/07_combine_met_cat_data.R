@@ -60,7 +60,9 @@ f_combine_met_cat_data <- function(metdata, catchment_dat, outdir, modelname){
   # now select vars
   cat_ffc_data <- ffc_final %>%
     left_join(st_drop_geometry(catchment_dat) %>% dplyr::select(comid, area, totda, area_weight), by="comid") %>%
-    select(comid, totda, area_sf=area, area_weight, comid_wy, everything())
+    # add area cols: exclude catch `area` and
+    # include only cumulative drainage area (totda)
+    select(comid, area_sf=totda, area_weight, comid_wy, everything())
 
   # names(cat_ffc_data) %>% as_tibble() %>% View(title = "finnames2")
 

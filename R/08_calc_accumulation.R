@@ -7,42 +7,44 @@
 # cat_data <- cat_ffc_data
 # tar_load(revised_catchments_north)
 # comlist <- revised_catchments_north[["comlist_accum"]]
-# xwalk <- xwalk #tar_load(xwalk)
+# tar_load(xwalk) # loads obj named "xwalk"
 # outdir <- "data_output"
 # modelname="north"
+
+# trying this with essentially NO accumulation
 
 f_calc_accum_data <- function(cat_data, comlist, xwalk, outdir, modelname){
 
   ## AWA -----------------------------------------
   # SUM of value * area weight + value * area weight
 
-  # select all variables that need "avg of catch values"
-  varnames_awa <- xwalk %>%
-    filter(accum_op_class=="AWA") %>%
-    select(dat_output)
-
-  # filter to vars
-  cat_df_awa <- cat_data %>%
-    # drop the non info vars
-    select(comid:wa_yr, varnames_awa$dat_output)
-
-  # filter to dataframe that is list of all comids for a given comid
-  dat_ls_awa <- map(comlist, ~filter(cat_df_awa, comid %in% .x) %>%
-                      select(-c(comid, comid_wy)))
-
-  dat_awa <- map(dat_ls_awa, ~group_by(.x, wa_yr) %>%
-                   summarise(
-                     across(
-                       .cols  = ppt_jan_wy:krug_runoff,
-                       ~sum(.x*area_weight),
-                       .names = "{col}_awa")
-                   ))
-
-  # collapse as dataframe:
-  dat_df_awa <- bind_rows(dat_awa, .id = "comid") %>%
-    mutate(comid=as.numeric(comid)) %>%
-    # fix the awa ending
-    rename_with(~str_remove(., '_awa')) #%>%
+  # # select all variables that need "avg of catch values"
+  # varnames_awa <- xwalk %>%
+  #   filter(accum_op_class=="AWA") %>%
+  #   select(dat_output)
+  #
+  # # filter to vars
+  # cat_df_awa <- cat_data %>%
+  #   # drop the non info vars
+  #   select(comid:wa_yr, varnames_awa$dat_output)
+  #
+  # # filter to dataframe that is list of all comids for a given comid
+  # dat_ls_awa <- map(comlist, ~filter(cat_df_awa, comid %in% .x) %>%
+  #                     select(-c(comid, comid_wy)))
+  #
+  # dat_awa <- map(dat_ls_awa, ~group_by(.x, wa_yr) %>%
+  #                  summarise(
+  #                    across(
+  #                      .cols  = ppt_jan_wy:krug_runoff,
+  #                      ~sum(.x*area_weight),
+  #                      .names = "{col}_awa")
+  #                  ))
+  #
+  # # collapse as dataframe:
+  # dat_df_awa <- bind_rows(dat_awa, .id = "comid") %>%
+  #   mutate(comid=as.numeric(comid)) %>%
+  #   # fix the awa ending
+  #   rename_with(~str_remove(., '_awa')) #%>%
     ## rename calculated vars back to original variables of interest
     # rename(ann_min_precip_basin = cat_minp6190,
     #        ann_max_precip_basin = cat_maxp6190,
@@ -53,56 +55,78 @@ f_calc_accum_data <- function(cat_data, comlist, xwalk, outdir, modelname){
     #        wtdepave = cat_wtdep)
 
   # rm temp files
-  rm(dat_ls_awa, varnames_awa, cat_df_awa, dat_awa)
+  # rm(dat_ls_awa, varnames_awa, cat_df_awa, dat_awa)
 
   ## MAX/MIN/RANGE/SUM----------------------------------------------------
 
 
   # # select all variables that need "avg of catch values"
-  varnames_oth <- xwalk %>%
-    filter(accum_op_class %in% c("AVG", "MAX","MIN","RNG","SUM")) %>%
-    filter(!dat_output %in% c("comid", "comid_wy", "wa_yr"))
-
-  # filter to vars
-  cat_df_oth <- cat_data %>%
-    # drop the non info vars
-    select(comid:wa_yr, varnames_oth$dat_output)
-
-  # filter to dataframe that is list of all comids for a given comid
-  dat_ls_oth <- map(comlist, ~filter(cat_df_oth, comid %in% .x) %>%
-                      select(-c(comid, comid_wy)))
-
-  # iterate over
-  dat_oth <- map(dat_ls_oth, ~group_by(.x, wa_yr) %>%
-                   summarise(
-                     # across(
-                     #   # min cols
-                     #   .cols  = c(cat_elev_min),
-                     #   ~min(.x),
-                     #   .names = "{col}_min"),
-                     # across(
-                     #   # max
-                     #   .cols = c(cat_elev_max),
-                     #   ~max(.x),
-                     #   .names = "{col}_max"),
-                     # # mean
-                     # across(
-                     #   .cols = c(cat_tav7100_ann),
-                     #   ~mean(.x, na.rm=TRUE),
-                     #   .names = "{col}_avg"),
-                     across(
-                       .cols = c(area_sf), # should = totda from catch data
-                       ~sum(.x),
-                       .names = "{col}_sum")
-                   )
-  )
+  # varnames_oth <- xwalk %>%
+  #   filter(accum_op_class %in% c("AVG", "MAX","MIN","RNG","SUM")) %>%
+  #   filter(!dat_output %in% c("comid", "comid_wy", "wa_yr"))
+  #
+  # # filter to vars
+  # cat_df_oth <- cat_data %>%
+  #   # drop the non info vars
+  #   select(comid:wa_yr, varnames_oth$dat_output)
+  #
+  # # filter to dataframe that is list of all comids for a given comid
+  # dat_ls_oth <- map(comlist, ~filter(cat_df_oth, comid %in% .x) %>%
+  #                     select(-c(comid, comid_wy)))
+  #
+  # # iterate over
+  # dat_oth <- map(dat_ls_oth, ~group_by(.x, wa_yr) %>%
+  #                  summarise(
+  #                    # across(
+  #                    #   # min cols
+  #                    #   .cols  = c(cat_elev_min),
+  #                    #   ~min(.x),
+  #                    #   .names = "{col}_min"),
+  #                    # across(
+  #                    #   # max
+  #                    #   .cols = c(cat_elev_max),
+  #                    #   ~max(.x),
+  #                    #   .names = "{col}_max"),
+  #                    # # mean
+  #                    # across(
+  #                    #   .cols = c(cat_tav7100_ann),
+  #                    #   ~mean(.x, na.rm=TRUE),
+  #                    #   .names = "{col}_avg"),
+  #                    across(
+  #                      .cols = c(area_sf), # should = totda from catch data
+  #                      ~sum(.x),
+  #                      .names = "{col}_sum")
+  #                  )
+  # )
 
   # collapse and rename
-  dat_df_oth <- bind_rows(dat_oth, .id = "comid") %>%
-    mutate(comid=as.numeric(comid)) %>%
-    rename(area_sf = area_sf_sum)
+  # dat_df_oth <- bind_rows(dat_oth, .id = "comid") %>%
+  #   mutate(comid=as.numeric(comid)) %>%
+  #   rename(area_sf = area_sf_sum)
+  #
+  # rm(dat_ls_oth, varnames_oth, cat_df_oth, dat_oth)
 
-  rm(dat_ls_oth, varnames_oth, cat_df_oth, dat_oth)
+  ## ECO Dominant -------------------------------------------------------
+  # this is no longer needed data already provides dom per catch
+  # # this section no longer needed because calcs are more simple (catch vals)
+  # RP, 2022-06-23
+
+  # cat_df_eco <- cat_data %>%
+  #   select(comid:wa_yr, eco3)
+  #
+  # # filter to dataframe that is list of all comids for a given comid
+  # dat_ls_eco <- map(comlist, ~filter(cat_df_eco, comid %in% .x) %>%
+  #                     select(-c(comid, comid_wy)))
+  #
+  # dat_eco <- map(dat_ls_eco, ~group_by(.x) %>%
+  #                  summarise(
+  #                    eco3_dom = names(which.max(table(eco3)))))
+  #
+  # dat_df_eco <- bind_rows(dat_eco, .id = "comid") %>%
+  #   mutate(comid=as.numeric(comid)) %>%
+  #   rename(eco3=eco3_dom)
+  #
+  # rm(dat_eco, cat_df_eco, dat_ls_eco)
 
   ## NO CALC ----------------------------------------------------------
 
@@ -139,32 +163,14 @@ f_calc_accum_data <- function(cat_data, comlist, xwalk, outdir, modelname){
 
   rm(varnames_nocalc)
 
-  ## ECO Dominant -------------------------------------------------------
-  # this is no longer needed data already provides dom per catch
-  # # this section no longer needed because calcs are more simple (catch vals)
-  # RP, 2022-06-23
-
-  # cat_df_eco <- cat_data %>%
-  #   select(comid:wa_yr, eco3)
-  #
-  # # filter to dataframe that is list of all comids for a given comid
-  # dat_ls_eco <- map(comlist, ~filter(cat_df_eco, comid %in% .x) %>%
-  #                     select(-c(comid, comid_wy)))
-  #
-  # dat_eco <- map(dat_ls_eco, ~group_by(.x) %>%
-  #                  summarise(
-  #                    eco3_dom = names(which.max(table(eco3)))))
-  #
-  # dat_df_eco <- bind_rows(dat_eco, .id = "comid") %>%
-  #   mutate(comid=as.numeric(comid)) %>%
-  #   rename(eco3=eco3_dom)
-  #
-  # rm(dat_eco, cat_df_eco, dat_ls_eco)
-
   # Combine All -------------------------------------------------------------
 
-  dat_final <- left_join(dat_df_awa, dat_df_oth) %>%
-    left_join(dat_df_nocalc) %>%
+
+
+  dat_final <-
+    dat_df_nocalc %>%
+    #left_join(dat_df_awa, dat_df_oth) %>%
+    #left_join(dat_df_nocalc) %>%
     mutate(comid_wy = glue("{comid}_{wa_yr}"), .after=comid)
 
   # RENAME & WRITE IT OUT -----------------------
@@ -200,7 +206,7 @@ f_calc_accum_data <- function(cat_data, comlist, xwalk, outdir, modelname){
     # scale down by 10
     mutate(across(c(cat_rfact, et_cat, et_basin, pptavg_cat, pptavg_basin), .fns = function(x)(x/10)))
 
-  #dat_final2 %>% select(cat_rfact, et_cat, et_basin, pptavg_cat, pptavg_basin) %>% summary()
+  #dat_final2 %>% select(cat_rfact, et_cat, et_basin, pptavg_cat, pptavg_basin, krug_runoff) %>% summary()
 
   write_csv(dat_final2, file = glue("{outdir}/accumulated_raw_metrics_{modelname}.csv"))
   return(dat_final2)

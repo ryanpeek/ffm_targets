@@ -68,6 +68,8 @@ f_get_krug_data <- function(inputfile, nhd_data,
   # make csv of this
   krug_runoff_csv <- krug_comids %>% st_drop_geometry() %>%
     dplyr::select(COMID=comid, krug_runoff = INCHES) %>%
+    # convert inches to mm:
+    mutate(krug_runoff = krug_runoff * 25.4) %>%
     mutate(source = "krug_runoff_avg_ann_1951-1980.e00")
 
   # write to data_clean

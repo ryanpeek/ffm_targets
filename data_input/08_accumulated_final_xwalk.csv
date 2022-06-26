@@ -2,130 +2,130 @@ mod_input_final,mod_input_raw,dat_output,check,accum_op,accum_op_class,source_fi
 comid,COMID,comid,NA,none,NONE,NA,Unique segment identifier used in NHDPlus V2.
 comid_wy,COMID_WY,comid_wy,NA,none,NONE,NA,Unique segment identifier used in NHDPlus V2.
 wa_yr,WaYr,wa_yr,NA,none,NONE,NA,water year
-ppt_jan_wy,ppt_Jan.wy,ppt_jan_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,"PRISM derived, 1945-2015"
-ppt_feb_wy,ppt_Feb.wy,ppt_feb_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_mar_wy,ppt_Mar.wy,ppt_mar_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_apr_wy,ppt_Apr.wy,ppt_apr_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_may_wy,ppt_May.wy,ppt_may_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_jun_wy,ppt_Jun.wy,ppt_jun_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_jul_wy,ppt_Jul.wy,ppt_jul_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_aug_wy,ppt_Aug.wy,ppt_aug_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_sep_wy,ppt_Sep.wy,ppt_sep_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_oct_wy,ppt_Oct.wy,ppt_oct_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_nov_wy,ppt_Nov.wy,ppt_nov_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_dec_wy,ppt_Dec.wy,ppt_dec_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_jan_pwy,ppt_Jan.pwy,ppt_jan_pwy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_feb_pwy,ppt_Feb.pwy,ppt_feb_pwy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_mar_pwy,ppt_Mar.pwy,ppt_mar_pwy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_apr_pwy,ppt_Apr.pwy,ppt_apr_pwy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_may_pwy,ppt_May.pwy,ppt_may_pwy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_jun_pwy,ppt_Jun.pwy,ppt_jun_pwy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_jul_pwy,ppt_Jul.pwy,ppt_jul_pwy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_aug_pwy,ppt_Aug.pwy,ppt_aug_pwy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-ppt_sep_pwy,ppt_Sep.pwy,ppt_sep_pwy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM derived
-tav_jan_wy,tav_Jan.wy,tav_jan_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_feb_wy,tav_Feb.wy,tav_feb_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_mar_wy,tav_Mar.wy,tav_mar_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_apr_wy,tav_Apr.wy,tav_apr_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_may_wy,tav_May.wy,tav_may_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_jun_wy,tav_Jun.wy,tav_jun_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_jul_wy,tav_Jul.wy,tav_jul_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_aug_wy,tav_Aug.wy,tav_aug_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_sep_wy,tav_Sep.wy,tav_sep_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_oct_wy,tav_Oct.wy,tav_oct_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_nov_wy,tav_Nov.wy,tav_nov_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_dec_wy,tav_Dec.wy,tav_dec_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_jan_pwy,tav_Jan.pwy,tav_jan_pwy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_feb_pwy,tav_Feb.pwy,tav_feb_pwy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_mar_pwy,tav_Mar.pwy,tav_mar_pwy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_apr_pwy,tav_Apr.pwy,tav_apr_pwy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_may_pwy,tav_May.pwy,tav_may_pwy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_jun_pwy,tav_Jun.pwy,tav_jun_pwy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_jul_pwy,tav_Jul.pwy,tav_jul_pwy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_aug_pwy,tav_Aug.pwy,tav_aug_pwy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_sep_pwy,tav_Sep.pwy,tav_sep_pwy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-run_jan_wy,run_Jan.wy,run_jan_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_feb_wy,run_Feb.wy,run_feb_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_mar_wy,run_Mar.wy,run_mar_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_apr_wy,run_Apr.wy,run_apr_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_may_wy,run_May.wy,run_may_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_jun_wy,run_Jun.wy,run_jun_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_jul_wy,run_Jul.wy,run_jul_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_aug_wy,run_Aug.wy,run_aug_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_sep_wy,run_Sep.wy,run_sep_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_oct_wy,run_Oct.wy,run_oct_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_nov_wy,run_Nov.wy,run_nov_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_dec_wy,run_Dec.wy,run_dec_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_jan_pwy,run_Jan.pwy,run_jan_pwy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_feb_pwy,run_Feb.pwy,run_feb_pwy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_mar_pwy,run_Mar.pwy,run_mar_pwy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_apr_pwy,run_Apr.pwy,run_apr_pwy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_may_pwy,run_May.pwy,run_may_pwy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_jun_pwy,run_Jun.pwy,run_jun_pwy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_jul_pwy,run_Jul.pwy,run_jul_pwy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_aug_pwy,run_Aug.pwy,run_aug_pwy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-run_sep_pwy,run_Sep.pwy,run_sep_pwy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
-ppt_ann_wy,ppt_ann.wy,ppt_ann_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM Monthly Avg (Water Year Oct to Sep)
-ppt_fall_wy,ppt_fall.wy,ppt_fall_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,"PRISM seasonal avg (Oct, Nov, Dec)"
-ppt_wint_wy,ppt_wint.wy,ppt_wint_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,"PRISM seasonal avg (Jan, Feb, Mar)"
-ppt_sprg_wy,ppt_sprg.wy,ppt_sprg_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,"PRISM seasonal avg (Apr, May, Jun)"
-ppt_summ_wy,ppt_summ.wy,ppt_summ_wy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,"PRISM seasonal avg (Jul, Aug, Sep)"
-ppt_ann_pwy,ppt_ann.pwy,ppt_ann_pwy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM seasonal avg (previous water year)
-ppt_wint_pwy,ppt_wint.pwy,ppt_wint_pwy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM seasonal avg (previous water year)
-ppt_sprg_pwy,ppt_sprg.pwy,ppt_sprg_pwy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM seasonal avg (previous water year)
-ppt_summ_pwy,ppt_summ.pwy,ppt_summ_pwy,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM seasonal avg (previous water year)
-ppt_sum1,ppt_sum1,ppt_sum1,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM sum1 (ann_wy + ann_pwy)
-ppt_sum2,ppt_sum2,ppt_sum2,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM sum2 (ann_wy + summ_pwy)
-ppt_sum3,ppt_sum3,ppt_sum3,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM sum3 (ann_wy + sprg_pwy)
-ppt_sum4,ppt_sum4,ppt_sum4,NA,area weighted avg,AWA,PPTYYYY_CAT_CONUS.csv,PRISM sum4 (ann_wy + wint_pwy
-run_ann_wy,run_ann.wy,run_ann_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
-run_fall_wy,run_fall.wy,run_fall_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
-run_wint_wy,run_wint.wy,run_wint_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
-run_sprg_wy,run_sprg.wy,run_sprg_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
-run_summ_wy,run_summ.wy,run_summ_wy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
-run_ann_pwy,run_ann.pwy,run_ann_pwy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
-run_wint_pwy,run_wint.pwy,run_wint_pwy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
-run_sprg_pwy,run_sprg.pwy,run_sprg_pwy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
-run_summ_pwy,run_summ.pwy,run_summ_pwy,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
-run_sum1,run_sum1,run_sum1,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
-run_sum2,run_sum2,run_sum2,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
-run_sum3,run_sum3,run_sum3,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
-run_sum4,run_sum4,run_sum4,NA,area weighted avg,AWA,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
-tav_ann_wy,tav_ann.wy,tav_ann_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_fall_wy,tav_fall.wy,tav_fall_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_wint_wy,tav_wint.wy,tav_wint_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_sprg_wy,tav_sprg.wy,tav_sprg_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_summ_wy,tav_summ.wy,tav_summ_wy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_ann_pwy,tav_ann.pwy,tav_ann_pwy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_wint_pwy,tav_wint.pwy,tav_wint_pwy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_sprg_pwy,tav_sprg.pwy,tav_sprg_pwy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_summ_pwy,tav_summ.pwy,tav_summ_pwy,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_sum1,tav_sum1,tav_sum1,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_sum2,tav_sum2,tav_sum2,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_sum3,tav_sum3,tav_sum3,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
-tav_sum4,tav_sum4,tav_sum4,NA,area weighted avg,AWA,TAVYYYY_CAT_CONUS.csv,PRISM derived
+ppt_jan_wy,ppt_Jan.wy,ppt_jan_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,"PRISM derived, 1945-2015"
+ppt_feb_wy,ppt_Feb.wy,ppt_feb_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_mar_wy,ppt_Mar.wy,ppt_mar_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_apr_wy,ppt_Apr.wy,ppt_apr_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_may_wy,ppt_May.wy,ppt_may_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_jun_wy,ppt_Jun.wy,ppt_jun_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_jul_wy,ppt_Jul.wy,ppt_jul_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_aug_wy,ppt_Aug.wy,ppt_aug_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_sep_wy,ppt_Sep.wy,ppt_sep_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_oct_wy,ppt_Oct.wy,ppt_oct_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_nov_wy,ppt_Nov.wy,ppt_nov_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_dec_wy,ppt_Dec.wy,ppt_dec_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_jan_pwy,ppt_Jan.pwy,ppt_jan_pwy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_feb_pwy,ppt_Feb.pwy,ppt_feb_pwy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_mar_pwy,ppt_Mar.pwy,ppt_mar_pwy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_apr_pwy,ppt_Apr.pwy,ppt_apr_pwy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_may_pwy,ppt_May.pwy,ppt_may_pwy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_jun_pwy,ppt_Jun.pwy,ppt_jun_pwy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_jul_pwy,ppt_Jul.pwy,ppt_jul_pwy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_aug_pwy,ppt_Aug.pwy,ppt_aug_pwy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+ppt_sep_pwy,ppt_Sep.pwy,ppt_sep_pwy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM derived
+tav_jan_wy,tav_Jan.wy,tav_jan_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_feb_wy,tav_Feb.wy,tav_feb_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_mar_wy,tav_Mar.wy,tav_mar_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_apr_wy,tav_Apr.wy,tav_apr_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_may_wy,tav_May.wy,tav_may_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_jun_wy,tav_Jun.wy,tav_jun_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_jul_wy,tav_Jul.wy,tav_jul_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_aug_wy,tav_Aug.wy,tav_aug_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_sep_wy,tav_Sep.wy,tav_sep_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_oct_wy,tav_Oct.wy,tav_oct_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_nov_wy,tav_Nov.wy,tav_nov_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_dec_wy,tav_Dec.wy,tav_dec_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_jan_pwy,tav_Jan.pwy,tav_jan_pwy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_feb_pwy,tav_Feb.pwy,tav_feb_pwy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_mar_pwy,tav_Mar.pwy,tav_mar_pwy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_apr_pwy,tav_Apr.pwy,tav_apr_pwy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_may_pwy,tav_May.pwy,tav_may_pwy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_jun_pwy,tav_Jun.pwy,tav_jun_pwy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_jul_pwy,tav_Jul.pwy,tav_jul_pwy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_aug_pwy,tav_Aug.pwy,tav_aug_pwy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_sep_pwy,tav_Sep.pwy,tav_sep_pwy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+run_jan_wy,run_Jan.wy,run_jan_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_feb_wy,run_Feb.wy,run_feb_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_mar_wy,run_Mar.wy,run_mar_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_apr_wy,run_Apr.wy,run_apr_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_may_wy,run_May.wy,run_may_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_jun_wy,run_Jun.wy,run_jun_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_jul_wy,run_Jul.wy,run_jul_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_aug_wy,run_Aug.wy,run_aug_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_sep_wy,run_Sep.wy,run_sep_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_oct_wy,run_Oct.wy,run_oct_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_nov_wy,run_Nov.wy,run_nov_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_dec_wy,run_Dec.wy,run_dec_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_jan_pwy,run_Jan.pwy,run_jan_pwy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_feb_pwy,run_Feb.pwy,run_feb_pwy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_mar_pwy,run_Mar.pwy,run_mar_pwy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_apr_pwy,run_Apr.pwy,run_apr_pwy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_may_pwy,run_May.pwy,run_may_pwy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_jun_pwy,run_Jun.pwy,run_jun_pwy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_jul_pwy,run_Jul.pwy,run_jul_pwy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_aug_pwy,run_Aug.pwy,run_aug_pwy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+run_sep_pwy,run_Sep.pwy,run_sep_pwy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,"Wollock water balance model, based on PRISM (ET, PPT, TEMP)"
+ppt_ann_wy,ppt_ann.wy,ppt_ann_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM Monthly Avg (Water Year Oct to Sep)
+ppt_fall_wy,ppt_fall.wy,ppt_fall_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,"PRISM seasonal avg (Oct, Nov, Dec)"
+ppt_wint_wy,ppt_wint.wy,ppt_wint_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,"PRISM seasonal avg (Jan, Feb, Mar)"
+ppt_sprg_wy,ppt_sprg.wy,ppt_sprg_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,"PRISM seasonal avg (Apr, May, Jun)"
+ppt_summ_wy,ppt_summ.wy,ppt_summ_wy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,"PRISM seasonal avg (Jul, Aug, Sep)"
+ppt_ann_pwy,ppt_ann.pwy,ppt_ann_pwy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM seasonal avg (previous water year)
+ppt_wint_pwy,ppt_wint.pwy,ppt_wint_pwy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM seasonal avg (previous water year)
+ppt_sprg_pwy,ppt_sprg.pwy,ppt_sprg_pwy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM seasonal avg (previous water year)
+ppt_summ_pwy,ppt_summ.pwy,ppt_summ_pwy,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM seasonal avg (previous water year)
+ppt_sum1,ppt_sum1,ppt_sum1,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM sum1 (ann_wy + ann_pwy)
+ppt_sum2,ppt_sum2,ppt_sum2,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM sum2 (ann_wy + summ_pwy)
+ppt_sum3,ppt_sum3,ppt_sum3,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM sum3 (ann_wy + sprg_pwy)
+ppt_sum4,ppt_sum4,ppt_sum4,NA,none,NONE,PPTYYYY_CAT_CONUS.csv,PRISM sum4 (ann_wy + wint_pwy
+run_ann_wy,run_ann.wy,run_ann_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
+run_fall_wy,run_fall.wy,run_fall_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
+run_wint_wy,run_wint.wy,run_wint_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
+run_sprg_wy,run_sprg.wy,run_sprg_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
+run_summ_wy,run_summ.wy,run_summ_wy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
+run_ann_pwy,run_ann.pwy,run_ann_pwy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
+run_wint_pwy,run_wint.pwy,run_wint_pwy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
+run_sprg_pwy,run_sprg.pwy,run_sprg_pwy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
+run_summ_pwy,run_summ.pwy,run_summ_pwy,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
+run_sum1,run_sum1,run_sum1,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
+run_sum2,run_sum2,run_sum2,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
+run_sum3,run_sum3,run_sum3,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
+run_sum4,run_sum4,run_sum4,NA,none,NONE,RUNYYYY_CAT_CONUS.csv,Wollock water balance model
+tav_ann_wy,tav_ann.wy,tav_ann_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_fall_wy,tav_fall.wy,tav_fall_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_wint_wy,tav_wint.wy,tav_wint_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_sprg_wy,tav_sprg.wy,tav_sprg_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_summ_wy,tav_summ.wy,tav_summ_wy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_ann_pwy,tav_ann.pwy,tav_ann_pwy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_wint_pwy,tav_wint.pwy,tav_wint_pwy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_sprg_pwy,tav_sprg.pwy,tav_sprg_pwy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_summ_pwy,tav_summ.pwy,tav_summ_pwy,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_sum1,tav_sum1,tav_sum1,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_sum2,tav_sum2,tav_sum2,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_sum3,tav_sum3,tav_sum3,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
+tav_sum4,tav_sum4,tav_sum4,NA,none,NONE,TAVYYYY_CAT_CONUS.csv,PRISM derived
 cat_basin_slope,SLOPE_PCT_30M,cat_basin_slope,NA,none,NONE,BASIN_CHAR_CAT_CONUS.csv,"Mean basin slope, percent. Derived from 30m NHDPlus"
 cat_elev_mean,ELEV_MEAN_M_BASIN_30M,cat_elev_mean,NA,none,NONE,BASIN_CHAR_CAT_CONUS.csv,Mean basin elevation (meters) from 30m NHDPlus
-cat_hlr_1,HLR1,cat_hlr_1,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_2,HLR2,cat_hlr_2,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_3,HLR3,cat_hlr_3,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_4,HLR4,cat_hlr_4,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_5,HLR5,cat_hlr_5,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_6,HLR6,cat_hlr_6,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_7,HLR7,cat_hlr_7,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_8,HLR8,cat_hlr_8,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_9,HLR9,cat_hlr_9,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_10,HLR10,cat_hlr_10,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_11,HLR11,cat_hlr_11,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_12,HLR12,cat_hlr_12,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_13,HLR13,cat_hlr_13,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_14,HLR14,cat_hlr_14,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_15,HLR15,cat_hlr_15,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_16,HLR16,cat_hlr_16,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_17,HLR17,cat_hlr_17,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_18,HLR18,cat_hlr_18,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_19,HLR19,cat_hlr_19,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
-cat_hlr_20,HLR20,cat_hlr_20,NA,area weighted avg,AWA,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_1,HLR1,cat_hlr_1,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_2,HLR2,cat_hlr_2,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_3,HLR3,cat_hlr_3,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_4,HLR4,cat_hlr_4,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_5,HLR5,cat_hlr_5,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_6,HLR6,cat_hlr_6,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_7,HLR7,cat_hlr_7,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_8,HLR8,cat_hlr_8,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_9,HLR9,cat_hlr_9,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_10,HLR10,cat_hlr_10,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_11,HLR11,cat_hlr_11,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_12,HLR12,cat_hlr_12,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_13,HLR13,cat_hlr_13,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_14,HLR14,cat_hlr_14,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_15,HLR15,cat_hlr_15,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_16,HLR16,cat_hlr_16,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_17,HLR17,cat_hlr_17,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_18,HLR18,cat_hlr_18,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_19,HLR19,cat_hlr_19,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
+cat_hlr_20,HLR20,cat_hlr_20,NA,none,NONE,HLR_CAT_CONUS.csv,Proportion of basin occupied by HLR x (proportion)
 pptavg_basin,PPTAVG_BASIN,tot_ppt7100_ann,NA,none,NONE,PPT7100_ANN_CONUS.csv,"Mean annual precipitation for basin, 1971-2000 (mm)"
 cat_tmin7100,T_MIN_BASIN,cat_tmin7100,NA,none,NONE,TMIN7100_CONUS.csv,"Mean min monthly temperature for basin, 1971-2000 (deg C)"
 cat_tmax7100,T_MAX_BASIN,cat_tmax7100,NA,none,NONE,TMAX7100_CONUS.csv,"Mean max monthly temperature for basin, 1971-2000 (deg C)"
@@ -248,12 +248,12 @@ cat_olson_si,SiO_pct,cat_olson_si,NA,none,NONE,OLSON_CAT_CONUS.csv,Mean watershe
 cat_olson_ucs,UCS,cat_olson_ucs,NA,none,NONE,OLSON_CAT_CONUS.csv,"Mean watershed Rock Uniaxial Compressive Strength, megaPascals."
 cat_olson_perm,Lperm,cat_olson_perm,NA,none,NONE,OLSON_CAT_CONUS.csv,Mean watershed rock hydraulic conductivity (x10^6 meters / second).
 cat_rechg,RECHARGE,cat_rechg,NA,none,NONE,RECHG_CONUS.csv,"Mean watershed annual natural groundwater recharge,days."
-krug_runoff,KRUG_RUNOFF,krug_runoff,NA,area weighted avg,AWA,KRUG_RUNOFF.csv,"based on polyline coverage of average annual runoff in the conterminous
+krug_runoff,KRUG_RUNOFF,krug_runoff,NA,none,NONE,KRUG_RUNOFF.csv,"based on polyline coverage of average annual runoff in the conterminous
 United States, 1951-1980 (in), Gebert, W.A., Graczyk, D.J., and Krug, W.R. 1987"
 cat_elev_min,ELEV_MIN_M_BASIN_30M,cat_elev_min,NA,none,NONE,BASIN_CHAR_CAT_CONUS.csv,"Minimum basin elevation (meters) from 30m NHDPlus, may include sinks"
 cat_elev_max,ELEV_MAX_M_BASIN_30M,cat_elev_max,NA,none,NONE,BASIN_CHAR_CAT_CONUS.csv,Maximum basin elevation (meters) from 30m NHDPlus
 t_avg_basin,T_AVG_BASIN,tot_tav7100_ann,NA,none,NONE,NHDV2_TMEAN7100_ANN_CONUS.csv,"Mean annual temperature for basin, 1971-2000 (deg C)"
-area_sf,DRAIN_SQKM,area_sf,calculated using sf and revised catch,sum,SUM,BASIN_CHAR_CAT_CONUS.csv,Drainage area of basin
+area_sf,DRAIN_SQKM,area_sf,calculated using sf and revised catch,none,NONE,BASIN_CHAR_CAT_CONUS.csv,Drainage area of basin
 elv_rng,ElvRng,elv_rng,calculated from cat_elev_max - cat_elev_min,none,NONE,BASIN_CHAR_CAT_CONUS.csv,Difference between maximum and minimum basin elevation
 eco3,ECO3,eco3,NA,none,NONE,ECOL3_DOM_CONUS.csv,Dominant ecoregion 3 landscape region in which the basin occurs
 pptavg_cat,PPTAVG_CAT,cat_ppt7100_ann,NA,none,NONE,PPT7100_ANN_CONUS.csv,"Mean annual precipitation for catchment, 1971-2000 (mm)"

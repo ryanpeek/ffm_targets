@@ -18,44 +18,44 @@ f_calc_accum_data <- function(cat_data, comlist, xwalk, outdir, modelname){
   ## AWA -----------------------------------------
   # SUM of value * area weight + value * area weight
 
-  # # select all variables that need "avg of catch values"
-  # varnames_awa <- xwalk %>%
-  #   filter(accum_op_class=="AWA") %>%
-  #   select(dat_output)
-  #
-  # # filter to vars
-  # cat_df_awa <- cat_data %>%
-  #   # drop the non info vars
-  #   select(comid:wa_yr, varnames_awa$dat_output)
-  #
-  # # filter to dataframe that is list of all comids for a given comid
-  # dat_ls_awa <- map(comlist, ~filter(cat_df_awa, comid %in% .x) %>%
-  #                     select(-c(comid, comid_wy)))
-  #
-  # dat_awa <- map(dat_ls_awa, ~group_by(.x, wa_yr) %>%
-  #                  summarise(
-  #                    across(
-  #                      .cols  = ppt_jan_wy:krug_runoff,
-  #                      ~sum(.x*area_weight),
-  #                      .names = "{col}_awa")
-  #                  ))
-  #
-  # # collapse as dataframe:
-  # dat_df_awa <- bind_rows(dat_awa, .id = "comid") %>%
-  #   mutate(comid=as.numeric(comid)) %>%
-  #   # fix the awa ending
-  #   rename_with(~str_remove(., '_awa')) #%>%
-    ## rename calculated vars back to original variables of interest
-    # rename(ann_min_precip_basin = cat_minp6190,
-    #        ann_max_precip_basin = cat_maxp6190,
-    #        pptavg_basin = cat_ppt7100_ann,
-    #        et_basin = cat_et,
-    #        pet_basin = cat_pet,
-    #        rh_basin = cat_rh,
-    #        wtdepave = cat_wtdep)
+  # select all variables that need "avg of catch values"
+  varnames_awa <- xwalk %>%
+    filter(accum_op_class=="AWA") %>%
+    select(dat_output)
+
+  # filter to vars
+  cat_df_awa <- cat_data %>%
+    # drop the non info vars
+    select(comid:wa_yr, varnames_awa$dat_output)
+
+  # filter to dataframe that is list of all comids for a given comid
+  dat_ls_awa <- map(comlist, ~filter(cat_df_awa, comid %in% .x) %>%
+                      select(-c(comid, comid_wy)))
+
+  dat_awa <- map(dat_ls_awa, ~group_by(.x, wa_yr) %>%
+                   summarise(
+                     across(
+                       .cols  = ppt_jan_wy:krug_runoff,
+                       ~sum(.x*area_weight),
+                       .names = "{col}_awa")
+                   ))
+
+  # collapse as dataframe:
+  dat_df_awa <- bind_rows(dat_awa, .id = "comid") %>%
+    mutate(comid=as.numeric(comid)) %>%
+    # fix the awa ending
+    rename_with(~str_remove(., '_awa')) #%>%
+  # rename calculated vars back to original variables of interest
+  rename(ann_min_precip_basin = cat_minp6190,
+         ann_max_precip_basin = cat_maxp6190,
+         pptavg_basin = cat_ppt7100_ann,
+         et_basin = cat_et,
+         pet_basin = cat_pet,
+         rh_basin = cat_rh,
+         wtdepave = cat_wtdep)
 
   # rm temp files
-  # rm(dat_ls_awa, varnames_awa, cat_df_awa, dat_awa)
+  rm(dat_ls_awa, varnames_awa, cat_df_awa, dat_awa)
 
   ## MAX/MIN/RANGE/SUM----------------------------------------------------
 

@@ -252,9 +252,9 @@ krug_runoff,KRUG_RUNOFF,krug_runoff,NA,area weighted avg,AWA,KRUG_RUNOFF.csv,"ba
 United States, 1951-1980 (in), Gebert, W.A., Graczyk, D.J., and Krug, W.R. 1987"
 cat_elev_min,ELEV_MIN_M_BASIN_30M,cat_elev_min,NA,none,NONE,BASIN_CHAR_CAT_CONUS.csv,"Minimum basin elevation (meters) from 30m NHDPlus, may include sinks"
 cat_elev_max,ELEV_MAX_M_BASIN_30M,cat_elev_max,NA,none,NONE,BASIN_CHAR_CAT_CONUS.csv,Maximum basin elevation (meters) from 30m NHDPlus
-t_avg_basin,T_AVG_BASIN,tot_tav7100_ann,NA,avg of catchment values,AVG,NHDV2_TMEAN7100_ANN_CONUS.csv,"Mean annual temperature for basin, 1971-2000 (deg C)"
+t_avg_basin,T_AVG_BASIN,tot_tav7100_ann,NA,none,NONE,NHDV2_TMEAN7100_ANN_CONUS.csv,"Mean annual temperature for basin, 1971-2000 (deg C)"
 area_sf,DRAIN_SQKM,area_sf,calculated using sf and revised catch,none,NONE,BASIN_CHAR_CAT_CONUS.csv,Drainage area of basin
-elv_rng,ElvRng,elv_rng,calculated from cat_elev_max - cat_elev_min,range,RNG,BASIN_CHAR_CAT_CONUS.csv,Difference between maximum and minimum basin elevation
+elv_rng,ElvRng,elv_rng,calculated from cat_elev_max - cat_elev_min in the 07 script,none,NONE,BASIN_CHAR_CAT_CONUS.csv,Difference between maximum and minimum basin elevation
 eco3,ECO3,eco3,NA,none,NONE,ECOL3_DOM_CONUS.csv,Dominant ecoregion 3 landscape region in which the basin occurs
 pptavg_cat,PPTAVG_CAT,cat_ppt7100_ann,NA,none,NONE,PPT7100_ANN_CONUS.csv,"Mean annual precipitation for catchment, 1971-2000 (mm)"
 t_avg_cat,T_AVG_CAT,cat_tav7100_ann,NA,none,NONE,NHDV2_TMEAN7100_ANN_CONUS.csv,"Mean annual temperature for catchment, 1971-2000 (deg C)"

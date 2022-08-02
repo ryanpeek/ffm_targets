@@ -1,0 +1,8 @@
+TO DO
+
+ - Talk w Ted 2022-07-28
+ - Re-run with updated data and generate accumulation using previous iteration
+ - make spreadsheet comparing Daren's data and updated (v4?) dataset
+ - generate FFM and compare with original
+
+ Send to Ted

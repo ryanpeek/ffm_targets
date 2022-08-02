@@ -6,30 +6,36 @@ library(tidyverse)
 library(janitor)
 library(glue)
 
+# Set Version -------------------------------------------------------------
+
+vrsn <- "_v4" # _v4 or ""
+
 # Get Data ----------------------------------------------------------------
 
-# files w orig data
-inputfiles <- list.files("data_input", pattern = "^3917.")
-file_list <- c(glue("data_input/{inputfiles}"))
+# get xwalk for names
+xwalk <- read_csv("data_input/08_accumulated_final_xwalk.csv")
 
-# read in
-orig_df <- read_csv(file_list)
+# files w orig data from Daren
+library(readxl)
+orig_df <- readxl::read_xlsx("data_output/comidpreds4ryan_rev.xlsx", sheet = 1) %>%
+  # select and order properly
+  select(xwalk$mod_input_raw)
+names(orig_df) <- xwalk$mod_input_final
 
 # add info
 orig_df <- orig_df %>%
   mutate(datatype = "orig", .after=comid)
 
 # revised
-rev <- read_csv("data_output/accumulated_raw_metrics_north.csv") %>%
+rev <- read_csv(glue("data_output/accumulated_raw_metrics_north{vrsn}.csv")) %>%
   filter(comid %in% c(unique(orig_df$comid))) %>%
+  select(xwalk$mod_input_final) %>%
   mutate(datatype="revised", .after=comid)
 
 # check names and bind:
-names(orig_df)[220:263]
-names(rev)[220:263]
+names(orig_df)[220:263] == names(rev)[220:263]
 
 # set names as same in both:
-names(rev) <- names(orig_df)
 compare_df_cols(rev, orig_df)
 
 # bind
@@ -37,7 +43,7 @@ df_all <- bind_rows(orig_df, rev) %>%
   arrange(comid, wa_yr)
 
 # write out
-write_csv(df_all, "data_output/accum_comparison_north_v3.csv")
+write_csv(df_all, file = glue("data_output/accum_comparison_north{vrsn}.csv"))
 
 # Add Labels --------------------------------------------------------------
 
@@ -50,95 +56,66 @@ df_all <- df_all %>%
     comid %in% nonhw ~ "non-headwater"
   ), .after=comid)
 
-# Compare -----------------------------------------------------------------
 
-# read in and compare stuff to accumulated data from Daren
-accum2 <- read_csv("data_output/comidpreds4ryan.csv") %>%
-  # drop the 6 vars we aren't using:
-  select(-c(TMIN_WS, PERMH_WS, PMIN_WS,
-            pmpe, BDMAX, PMAX_WS)) %>%
-  mutate(datatype="orig_usgs", .after=COMID) %>%
-  mutate(comtype = case_when(
-    COMID %in% headwaters ~ "headwater",
-    COMID %in% nonhw ~ "non-headwater"
-  ), .after=COMID)
-
-
-# match up names:
-names(accum2)
-names(df_all)
-
-# check names and bind:
-names(accum2)[120:163]
-names(df_all)[120:163]
-
-# set names as same in both:
-names(accum2) <- names(df_all)
-compare_df_cols(accum2, df_all)
-
-
-# bind
-df_all2 <- bind_rows(df_all, accum2) %>%
-  arrange(comid, wa_yr)
 
 # Compare all Years One Metric --------------------------------------------
 
-
-var_sel <- "ppt_jan_wy"
-
-df_all2 %>% filter(comtype=="headwater") %>%
-  ggplot() +
-  geom_point(aes(x=wa_yr, y=.data[[var_sel]], group=wa_yr, color=as.factor(comid), shape=datatype, alpha=datatype), size=3) +
-  scale_color_discrete("Headwater COMID")+
-  theme_classic()+
-  labs(title="Accumulated Data Comparison")
-
-var_sel2 <- "ppt_jun_wy"
-df_all2 %>% filter(comtype!="headwater") %>%
-ggplot() +
-  geom_point(aes(x=wa_yr, y=.data[[var_sel2]], group=wa_yr, shape=datatype, color=as.factor(comid)), size=2.7, alpha=0.9) +
-  scale_color_brewer("Type", palette = "Set2")+
-  scale_shape_discrete("Accumulation Data")+
-  theme_classic()+
-  labs(title=glue("Accumulated Data Comparison: {var_sel2}"))
-
-# krug?
-var_sel3 <- "krug_runoff"
-df_all2 %>% filter(comtype!="headwater") %>%
-  ggplot() +
-  geom_point(aes(x=wa_yr, y=.data[[var_sel3]], group=wa_yr, shape=datatype, color=as.factor(comid)), size=2.7, alpha=0.9) +
-  scale_color_brewer("Type", palette = "Set2")+
-  scale_shape_discrete("Accumulation Data")+
-  theme_classic()+
-  labs(title=glue("Accumulated Data Comparison: {var_sel3}"))
-
-
-# Calculations ------------------------------------------------------------
-
-# pick headwater and calc a single year
-df_all2 %>% filter(comid==3917136) %>%
-  group_by(datatype) %>%
-  select(ppt_jan_wy) %>%
-  summarize(mean(ppt_jan_wy))
-
-# summary per all years for one var
-df_all2 %>% filter(comid==3917136 & datatype=="orig_usgs") %>%
-  select(ppt_jan_wy) %>% summary()
-
-df_all2 %>% filter(comid==3917136 & datatype=="revised") %>%
-  select(ppt_jan_wy) %>% summary()
-
-# if scaled what is summary?
-df_all2 %>% filter(comid==3917136, datatype=="revised") %>%
-  select(ppt_jan_wy) %>% summarize(scale(ppt_jan_wy)) %>% summary()
-
-df_all2 %>% filter(comid==3917136, datatype=="orig_usgs") %>%
-  select(ppt_jan_wy) %>% summarize(scale(ppt_jan_wy)) %>% summary()
-
-df_all2 %>% filter(comid==3917136, datatype=="orig") %>%
-  select(ppt_jan_wy) %>% summary()
-
-df_all2 %>% filter(comid==3917136 & datatype=="orig") %>%
-  group_by(datatype) %>%
-  select(ppt_jan_wy) %>%
-  summarize(scale(ppt_jan_wy))
+#
+# var_sel <- "ppt_jan_wy"
+#
+# df_all2 %>% filter(comtype=="headwater") %>%
+#   ggplot() +
+#   geom_point(aes(x=wa_yr, y=.data[[var_sel]], group=wa_yr, color=as.factor(comid), shape=datatype, alpha=datatype), size=3) +
+#   scale_color_discrete("Headwater COMID")+
+#   theme_classic()+
+#   labs(title="Accumulated Data Comparison")
+#
+# var_sel2 <- "ppt_jun_wy"
+# df_all2 %>% filter(comtype!="headwater") %>%
+# ggplot() +
+#   geom_point(aes(x=wa_yr, y=.data[[var_sel2]], group=wa_yr, shape=datatype, color=as.factor(comid)), size=2.7, alpha=0.9) +
+#   scale_color_brewer("Type", palette = "Set2")+
+#   scale_shape_discrete("Accumulation Data")+
+#   theme_classic()+
+#   labs(title=glue("Accumulated Data Comparison: {var_sel2}"))
+#
+# # krug?
+# var_sel3 <- "krug_runoff"
+# df_all2 %>% filter(comtype!="headwater") %>%
+#   ggplot() +
+#   geom_point(aes(x=wa_yr, y=.data[[var_sel3]], group=wa_yr, shape=datatype, color=as.factor(comid)), size=2.7, alpha=0.9) +
+#   scale_color_brewer("Type", palette = "Set2")+
+#   scale_shape_discrete("Accumulation Data")+
+#   theme_classic()+
+#   labs(title=glue("Accumulated Data Comparison: {var_sel3}"))
+#
+#
+# # Calculations ------------------------------------------------------------
+#
+# # pick headwater and calc a single year
+# df_all2 %>% filter(comid==3917136) %>%
+#   group_by(datatype) %>%
+#   select(ppt_jan_wy) %>%
+#   summarize(mean(ppt_jan_wy))
+#
+# # summary per all years for one var
+# df_all2 %>% filter(comid==3917136 & datatype=="orig_usgs") %>%
+#   select(ppt_jan_wy) %>% summary()
+#
+# df_all2 %>% filter(comid==3917136 & datatype=="revised") %>%
+#   select(ppt_jan_wy) %>% summary()
+#
+# # if scaled what is summary?
+# df_all2 %>% filter(comid==3917136, datatype=="revised") %>%
+#   select(ppt_jan_wy) %>% summarize(scale(ppt_jan_wy)) %>% summary()
+#
+# df_all2 %>% filter(comid==3917136, datatype=="orig_usgs") %>%
+#   select(ppt_jan_wy) %>% summarize(scale(ppt_jan_wy)) %>% summary()
+#
+# df_all2 %>% filter(comid==3917136, datatype=="orig") %>%
+#   select(ppt_jan_wy) %>% summary()
+#
+# df_all2 %>% filter(comid==3917136 & datatype=="orig") %>%
+#   group_by(datatype) %>%
+#   select(ppt_jan_wy) %>%
+#   summarize(scale(ppt_jan_wy))

@@ -147,7 +147,7 @@ list(
   tar_target(ffm_final_summary,
              f_combine_ffm(ffm_predictions,
                            outdir = "data_output/ffm_preds_summary",
-                           filename = "final_ffm_preds_lshasta_north"))
+                           filename = "final_ffm_preds_lshasta_north_v4"))
 
 )
 
